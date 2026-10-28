@@ -27,6 +27,8 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm test
+      - name: Build for custom domain
+        run: SITE_BASE_PATH=/ npm run build
       - name: Upload website
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v4

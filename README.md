@@ -3,7 +3,7 @@
 The standalone website for [OCP](https://github.com/nandorocker/ocp), by
 [Nando Rossi](https://nan.do).
 
-Production: **https://nandorocker.github.io/ocp-site/**
+Production: **https://ocp.nan.do/**
 
 A static introduction and documentation site. Eleventy renders Markdown and
 Nunjucks layouts to HTML; Vite serves local development and build previews.
@@ -28,7 +28,7 @@ npm run build
 npm run preview -- --base=/ocp-site/ --port 4173 --strictPort
 ```
 
-The default production path prefix is `/ocp-site/`, matching GitHub Pages. Preview
+The default build path prefix is `/ocp-site/`, used by the subpath tests. Preview
 that build with `npm run preview -- --base=/ocp-site/ --port 4173 --strictPort`,
 then open `/ocp-site/`. For a host serving from the domain root, build with
 `SITE_BASE_PATH=/ npm run build`; another subpath can be supplied the same way.
@@ -107,7 +107,9 @@ and explains OCP's role alongside T3 without claiming it manages T3 configuratio
 `.github/workflows/pages.yml` runs the browser tests on pull requests and pushes
 to `main`. A successful push to `main` builds and deploys `dist/` to GitHub Pages.
 It can also be run manually. Repository **Settings → Pages → Source** must be
-**GitHub Actions**. No custom domain or Windy production service is configured.
+**GitHub Actions**. The custom domain is `ocp.nan.do`, with a DNS-only Cloudflare
+`CNAME` to `nandorocker.github.io`. After tests, the workflow rebuilds with
+`SITE_BASE_PATH=/` for the custom domain. No Windy production service is configured.
 
 Deployment permissions are limited to the deployment job. Pull requests only run
 checks and cannot deploy. To roll back, revert the relevant source commit and
