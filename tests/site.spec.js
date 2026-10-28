@@ -77,6 +77,21 @@ for (const width of [390, 1440]) {
         await expect(page.locator('body')).toHaveCSS('font-size', width >= 1024 ? '20px' : '18px');
         await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(252, 252, 250)');
         await expect(page.locator('h1')).toBeVisible();
+        const illustration = page.locator('.hero-illustration');
+        await expect(illustration).toBeVisible();
+        await expect(illustration).toHaveAttribute('src', `${base.includes('4175') ? '/ocp-site' : ''}/ocp-schematic.png`);
+        expect(await illustration.evaluate((img) => img.complete && img.naturalWidth === 1536)).toBe(true);
+        const imageBounds = await illustration.boundingBox();
+        expect(imageBounds.width).toBeGreaterThan(width > 900 ? 300 : 120);
+        const headingBounds = await page.locator('h1').boundingBox();
+        const copyBounds = await page.locator('.hero-copy').boundingBox();
+        expect(imageBounds.y).toBeGreaterThanOrEqual(headingBounds.y + headingBounds.height);
+        if (width > 900) {
+          expect(imageBounds.x).toBeGreaterThanOrEqual(copyBounds.x + copyBounds.width);
+        } else {
+          expect(imageBounds.y).toBeGreaterThanOrEqual(copyBounds.y + copyBounds.height);
+        }
+        expect(imageBounds.width / imageBounds.height).toBeCloseTo(1.5, 2);
         await expect(page.locator('.sidebar')).toBeVisible();
         if (width > 900) {
           await expect(page.locator('.mobile-header')).toBeHidden();
