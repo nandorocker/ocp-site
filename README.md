@@ -28,6 +28,11 @@ paths, so it also works below a subpath. No account, analytics, backend, or secr
 configuration is required. Fonts are requested from Google Fonts, with system
 fallbacks when unavailable.
 
+The GitHub summary requests the OCP repository's public release, star, and fork
+metadata directly from GitHub's API, without credentials. If requests fail or
+are rate-limited, descriptive labels remain instead of fabricated counts. The
+repository link still works without JavaScript.
+
 The logo in `public/logo.png` comes from the OCP project's `docs/logo.png`;
 update this copy if the project logo changes. Content is in `index.html`, styles in `src/style.css`,
 and progressive enhancements in `src/main.js`.

@@ -1,3 +1,5 @@
+import './repository.js';
+
 const menuToggle = document.querySelector('.menu-toggle');
 const sidebar = document.querySelector('.sidebar');
 

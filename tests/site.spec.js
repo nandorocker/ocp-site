@@ -1,12 +1,32 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
+test.beforeEach(async ({ page }) => {
+  await page.route('https://api.github.com/repos/nandorocker/ocp', (route) => route.fulfill({
+    json: { stargazers_count: 22100, forks_count: 698 },
+  }));
+  await page.route('https://api.github.com/repos/nandorocker/ocp/releases/latest', (route) => route.fulfill({
+    json: { tag_name: 'v0.1.2' },
+  }));
+});
+
 test('loads the handbook, assets, and valid internal links without script errors', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
-  await expect(page).toHaveTitle('OCP — Your OpenCode setup, neatly kept.');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your OpenCode setup,neatly kept.');
+  await expect(page).toHaveTitle('OCP — Your coding-agent config. Every machine.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your coding-agent config.Every machine.');
+  await expect(page.locator('.sidebar-description')).toHaveText('Thank you for your configuration.');
+  await expect(page.locator('.mobile-motto')).toHaveText('Thank you for your configuration.');
+  await expect(page.locator('.hero .harness-note')).toHaveText('Currently works with OpenCode; other harnesses coming soon!');
+  await expect(page.locator('.harness-note a')).toHaveAttribute('href', 'https://opencode.ai/');
+  const navigation = page.getByRole('navigation', { name: 'Main navigation' });
+  await expect(navigation.locator('.nav-heading')).toHaveCount(0);
+  await expect(navigation.getByRole('link', { name: 'Source on GitHub' })).toHaveCount(0);
+  await expect(navigation.getByRole('link', { name: 'Feedback & ideas' })).toHaveCount(1);
+  await expect(navigation.locator('.active')).toHaveCSS('font-weight', '800');
+  await expect(navigation.locator('.active')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await expect(navigation.locator('.active .nav-symbol')).toHaveCSS('fill', 'rgb(32, 57, 81)');
   expect(await page.locator('.desktop-brand img').evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
   expect(await page.locator('a[href^="#"]').evaluateAll((links) => links.every((link) => document.getElementById(link.hash.slice(1))))).toBe(true);
   expect(errors).toEqual([]);
@@ -29,11 +49,55 @@ test('profile tabs work with pointer and keyboard', async ({ page }) => {
 test('credits Nando and links to the same coffee page as BouncyGen', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('meta[name="author"]')).toHaveAttribute('content', 'Nando Rossi');
-  await expect(page.locator('.project-note').getByRole('link', { name: 'Nando Rossi' })).toHaveAttribute('href', 'https://nan.do');
+  await expect(page.locator('.sidebar-credit').getByRole('link', { name: 'Nando Rossi' })).toHaveAttribute('href', 'https://nan.do');
   await expect(page.locator('.closing')).toContainText('Nando Rossi, the developer behind OCP.');
-  const coffee = page.getByRole('link', { name: 'Buy me a coffee' });
-  await expect(coffee).toHaveAttribute('href', 'https://buymeacoffee.com/nandorossi');
-  await expect(coffee).toHaveAttribute('rel', 'noopener noreferrer');
+  const coffees = page.getByRole('link', { name: 'Buy me a coffee', exact: true });
+  await expect(coffees).toHaveCount(2);
+  for (const coffee of await coffees.all()) {
+    await expect(coffee).toHaveAttribute('href', 'https://buymeacoffee.com/nandorossi');
+    await expect(coffee).toHaveAttribute('rel', 'noopener noreferrer');
+    await expect(coffee).toHaveCSS('background-color', 'rgb(255, 221, 0)');
+    await expect(coffee).toHaveCSS('color', 'rgb(26, 18, 8)');
+    await expect(coffee).toHaveCSS('border-radius', '8px');
+  }
+  await expect(page.locator('.sidebar-credit .coffee-link-mini')).toBeVisible();
+  await expect(page.locator('body')).not.toContainText('↗');
+});
+
+test('repository summary displays release, stars, and forks without the old tagline', async ({ page }) => {
+  await page.goto('/');
+  const summary = page.getByRole('link', { name: 'OCP on GitHub' });
+  await expect(summary).toHaveAttribute('href', 'https://github.com/nandorocker/ocp');
+  await expect(summary).toContainText('nandorocker/ocp');
+  await expect(summary.locator('[data-repository="release"]')).toHaveText('v0.1.2');
+  await expect(summary.locator('[data-repository="stars"]')).toHaveText('22.1K');
+  await expect(summary.locator('[data-repository="stars"]')).toHaveAttribute('aria-label', '22100 stars');
+  await expect(summary.locator('[data-repository="forks"]')).toHaveText('698');
+  await expect(page.getByText('Small project. Open source.', { exact: true })).toHaveCount(0);
+});
+
+test('unavailable GitHub metadata leaves labels and does not break the controls', async ({ page }) => {
+  await page.unroute('https://api.github.com/repos/nandorocker/ocp');
+  await page.unroute('https://api.github.com/repos/nandorocker/ocp/releases/latest');
+  await page.route('https://api.github.com/repos/nandorocker/ocp', (route) => route.fulfill({ status: 403, json: {} }));
+  await page.route('https://api.github.com/repos/nandorocker/ocp/releases/latest', (route) => route.abort());
+  await page.goto('/');
+  await expect(page.locator('[data-repository="release"]')).toHaveText('Releases');
+  await expect(page.locator('[data-repository="stars"]')).toHaveText('Stars');
+  await expect(page.locator('[data-repository="forks"]')).toHaveText('Forks');
+  await page.getByRole('tab', { name: 'focused', exact: true }).click();
+  await expect(page.getByRole('tabpanel')).toContainText('extends: everyday');
+});
+
+test('repository metadata supports zero counts and rejects invalid values', async ({ page }) => {
+  await page.unroute('https://api.github.com/repos/nandorocker/ocp');
+  await page.unroute('https://api.github.com/repos/nandorocker/ocp/releases/latest');
+  await page.route('https://api.github.com/repos/nandorocker/ocp', (route) => route.fulfill({ json: { stargazers_count: 0, forks_count: -1 } }));
+  await page.route('https://api.github.com/repos/nandorocker/ocp/releases/latest', (route) => route.fulfill({ json: { tag_name: 123 } }));
+  await page.goto('/');
+  await expect(page.locator('[data-repository="stars"]')).toHaveText('0');
+  await expect(page.locator('[data-repository="forks"]')).toHaveText('Forks');
+  await expect(page.locator('[data-repository="release"]')).toHaveText('Releases');
 });
 
 test('copy uses only the selected profile', async ({ context, page }) => {
@@ -58,7 +122,7 @@ test('FAQ and navigation expose their current state', async ({ page }) => {
   await page.getByRole('link', { name: 'Common questions', exact: true }).click();
   await expect(page).toHaveURL(/#questions$/);
   await expect(page.getByRole('link', { name: 'Common questions', exact: true })).toHaveAttribute('aria-current', 'location');
-  await page.getByText('How is this different from chezmoi?', { exact: true }).click();
+  await page.getByText('Do I have to keep every machine identical?', { exact: true }).click();
   await expect(page.locator('details').first()).toHaveAttribute('open', '');
 });
 
@@ -111,6 +175,12 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    const fontSize = (selector) => page.locator(selector).first().evaluate((element) => parseFloat(getComputedStyle(element).fontSize));
+    expect(await fontSize('body')).toBe(width >= 1024 ? 20 : 18);
+    expect(await fontSize('.steps p')).toBeGreaterThanOrEqual(18);
+    expect(await fontSize('.hero-description')).toBeGreaterThanOrEqual(18);
+    expect(await fontSize('pre')).toBeGreaterThanOrEqual(14);
+    expect(await fontSize('.small')).toBeGreaterThanOrEqual(15);
     await page.screenshot({ path: `test-results/ocp-${width}.png`, fullPage: true });
   });
 }
