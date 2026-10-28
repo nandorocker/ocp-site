@@ -4,15 +4,18 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "build": "vite build --base=./",
+    "dev": "node scripts/vite.mjs",
+    "build": "eleventy",
     "preview": "vite preview --host 127.0.0.1",
     "pretest": "npm run build",
     "test": "playwright test"
   },
   "devDependencies": {
+    "@11ty/eleventy": "^3.1.7",
     "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.64.1",
+    "markdown-it": "^15.0.3",
+    "markdown-it-anchor": "^10.0.0",
     "vite": "^7.3.1"
   }
 }

@@ -2,6 +2,7 @@ const compact = new Intl.NumberFormat('en', { notation: 'compact', maximumFracti
 
 function showValue(key, value, label) {
   const element = document.querySelector(`[data-repository="${key}"]`);
+  if (!element) return;
   element.querySelector('span').textContent = value;
   element.setAttribute('aria-label', label);
 }
@@ -25,7 +26,7 @@ void Promise.allSettled([
       ['forks', 'forks_count', 'forks'],
     ]) {
       const count = repository[field];
-      if (Number.isSafeInteger(count) && count >= 0) showValue(key, compact.format(count), `${count} ${label}`);
+      if (Number.isSafeInteger(count) && count >= 0) showValue(key, `${compact.format(count)} ${label}`, `${count} ${label}`);
     }
   }),
   github('/releases/latest').then((release) => {
