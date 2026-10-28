@@ -101,5 +101,5 @@ Later, `ocp sync` can synchronize a Git-backed source and render profiles in one
 
 - [Learn how profiles and shared components work](../docs/#profiles).
 - [Bring the setup to another machine](../docs/#machines).
-- [Edit profiles in the browser](../docs/#browser), or [ask a coding agent to help](../docs/#agents).
+- [Ask a coding agent to help](../docs/#agents).
 - [Restore your earlier configuration](../docs/#reset) if you want to undo setup.

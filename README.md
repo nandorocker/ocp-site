@@ -8,7 +8,8 @@ Production: **https://nandorocker.github.io/ocp-site/**
 A static introduction and documentation site. Eleventy renders Markdown and
 Nunjucks layouts to HTML; Vite serves local development and build previews.
 The browser uses plain CSS and JavaScript, with no client-side router, analytics,
-accounts, or backend. This website is separate from the local `ocp ui` editor.
+accounts, or backend. The site documents the CLI workflow; the unfinished graphical
+editor is intentionally omitted.
 
 ```sh
 git clone https://github.com/nandorocker/ocp-site.git
@@ -48,8 +49,8 @@ deep blue `#134686`, red `#ED3F27`, amber `#FEB21A`, and cream `#FDF4E3`.
 Blue anchors the sidebar, headings, and links; amber highlights the primary action
 with blue lettering. Cream is used for sidebar text and small callouts, with red
 accent rules and an illustration detail. Reading surfaces stay near-white
-`#FCFCFA`, with slate body text and cool neutral code blocks. Coffee buttons retain
-BouncyGen's independent `#FFDD00` styling.
+`#FCFCFA`, with slate body text and cool neutral code blocks. Coffee buttons use
+the site's amber while retaining BouncyGen's typography, sizing, and bounce.
 
 Primary and utility button springs are tuned in [BouncyGen](https://bounce.nan.do/)
 and embedded as CSS keyframes. They run only on fine-pointer hover, not keyboard
