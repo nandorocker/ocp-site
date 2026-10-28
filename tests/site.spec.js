@@ -338,12 +338,49 @@ for (const width of [320, 390, 768, 1024, 1440]) {
 }
 
 for (const width of [390, 1440]) {
-  test(`all pages pass automated WCAG A/AA checks at ${width}px`, async ({ page }) => {
+  test(`system theme switches live on all pages at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     for (const route of routes) {
+      await page.emulateMedia({ colorScheme: 'light' });
       await page.goto(route);
-      const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
-      expect(results.violations.map(({ id, nodes }) => ({ id, nodes: nodes.map(({ target, failureSummary }) => ({ target, failureSummary })) })), route).toEqual([]);
+      await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(252, 252, 250)');
+      await page.emulateMedia({ colorScheme: 'dark' });
+      await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
+      await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(16, 25, 35)');
+      await expect(page.locator('h1')).toHaveCSS('color', 'rgb(182, 213, 255)');
+      await expect(page.locator(width === 390 ? '.mobile-header' : '.sidebar')).toHaveCSS('background-color', 'rgb(16, 45, 81)');
+      await page.emulateMedia({ colorScheme: 'light' });
+      await expect(page.locator('html')).toHaveCSS('color-scheme', 'light');
+      await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(252, 252, 250)');
     }
   });
+
+  test(`dark theme renders without JavaScript at ${width}px`, async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false, colorScheme: 'dark', viewport: { width, height: 900 } });
+    try {
+      const page = await context.newPage();
+      for (const base of ['http://127.0.0.1:5175', 'http://127.0.0.1:4175/ocp-site']) {
+        await page.goto(`${base}/`);
+        await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(16, 25, 35)');
+        await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
+        await expect(page.locator('h1')).toBeVisible();
+      }
+    } finally {
+      await context.close();
+    }
+  });
+}
+
+for (const colorScheme of ['light', 'dark']) {
+  for (const width of [390, 1440]) {
+    test(`all pages pass automated WCAG A/AA checks in ${colorScheme} mode at ${width}px`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme });
+      await page.setViewportSize({ width, height: 900 });
+      for (const route of routes) {
+        await page.goto(route);
+        const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+        expect(results.violations.map(({ id, nodes }) => ({ id, nodes: nodes.map(({ target, failureSummary }) => ({ target, failureSummary })) })), route).toEqual([]);
+      }
+    });
+  }
 }
