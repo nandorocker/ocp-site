@@ -31,8 +31,10 @@ The default production path prefix is `/ocp-site/`, matching GitHub Pages. Previ
 that build with `npm run preview -- --base=/ocp-site/ --port 4173 --strictPort`,
 then open `/ocp-site/`. For a host serving from the domain root, build with
 `SITE_BASE_PATH=/ npm run build`; another subpath can be supplied the same way.
-Publish the contents of `dist/`. Fonts are requested from Google Fonts, with
-system fallbacks when unavailable.
+Publish the contents of `dist/`. Eleventy embeds `src/style.css` in each page's
+head so the first render doesn't depend on a separate stylesheet request. The
+source file remains the single place to edit styles and is watched in development.
+Fonts are requested from Google Fonts, with system fallbacks when unavailable.
 
 The GitHub summary requests the OCP repository's public release, star, and fork
 metadata directly from GitHub's API, without credentials. If requests fail or
@@ -41,12 +43,18 @@ repository link still works without JavaScript.
 
 ## Editing content
 
-The retro palette comes from [Color Hunt](https://colorhunt.co/palette/f5ebddf2765e315b8c413333):
-cream `#F5EBDD`, coral `#F2765E`, blue `#315B8C`, and dark brown `#413333`.
-The sidebar uses deep blue with light text; reading surfaces use near-white
-`#FCFCFA`, with cool neutral code blocks. Cream is reserved for sidebar text and
-coral for small accents. Coffee buttons retain BouncyGen's independent `#FFDD00`
-styling.
+The retro palette comes from [Color Hunt](https://colorhunt.co/palette/134686ed3f27feb21afdf4e3):
+deep blue `#134686`, red `#ED3F27`, amber `#FEB21A`, and cream `#FDF4E3`.
+Blue anchors the sidebar, headings, and links; amber highlights the primary action
+with blue lettering. Cream is used for sidebar text and small callouts, with red
+accent rules and an illustration detail. Reading surfaces stay near-white
+`#FCFCFA`, with slate body text and cool neutral code blocks. Coffee buttons retain
+BouncyGen's independent `#FFDD00` styling.
+
+Primary and utility button springs are tuned in [BouncyGen](https://bounce.nan.do/)
+and embedded as CSS keyframes. They run only on fine-pointer hover, not keyboard
+focus or touch hover; reduced motion disables their movement. The coffee button
+retains its original animation.
 
 - `site/index.njk`: short homepage.
 - `site/install.md`: OS-specific installation.
@@ -66,8 +74,9 @@ removed. Installation sections, examples, and navigation remain usable without
 JavaScript. Old homepage `#profiles`, `#machines`, and `#commands` links lead to
 their new guides with JavaScript; without it, matching links appear on the home page.
 
-The logo in `public/logo.png` comes from the OCP project's `docs/logo.png`.
-Update this copy if the project logo changes.
+The supplied vector logo in `public/logo.svg` is used in desktop and mobile
+branding and as the favicon. Its original colors are preserved. The earlier
+`public/logo.png` remains available at its existing URL.
 
 ## Checks
 
@@ -80,7 +89,8 @@ Tests build the site first, then load every page directly in development and
 under the production `/ocp-site/` prefix. They check internal links and anchors,
 assets, active navigation, OS instructions, clipboard success/fallback, author
 and support links, repository metadata failure modes, legacy links, no-JavaScript
-access, five viewport widths, and automated WCAG A/AA checks on every page.
+access, first rendering with external stylesheets blocked, five viewport widths,
+and automated WCAG A/AA checks on every page.
 Tests start separate loopback servers on ports 5175 and 4175 and save layout
 screenshots in the ignored `test-results/` directory.
 

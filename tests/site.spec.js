@@ -18,7 +18,14 @@ for (const route of routes) {
       await expect(page.locator('main')).toBeVisible();
       await expect(page.locator('body')).not.toContainText('↗');
       expect(await page.locator('.desktop-brand img').evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
-      expect(await page.locator('link[href$="/assets/style.css"]').evaluate((link) => Boolean(link.sheet))).toBe(true);
+      const logoPath = `${base.includes('4175') ? '/ocp-site' : ''}/logo.svg`;
+      for (const logo of await page.locator('.brand img').all()) {
+        await expect(logo).toHaveAttribute('src', logoPath);
+        expect(await logo.evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
+      }
+      await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', logoPath);
+      await expect(page.locator('link[rel="icon"]')).toHaveAttribute('type', 'image/svg+xml');
+      expect(await page.locator('style[data-site-styles]').evaluate((style) => Boolean(style.sheet?.cssRules.length))).toBe(true);
       const ids = await page.locator('[id]').evaluateAll((elements) => elements.map((element) => element.id));
       expect(new Set(ids).size).toBe(ids.length);
       {
@@ -35,12 +42,17 @@ for (const route of routes) {
 
 test('keeps the homepage concise and support status prominent', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle('OCP — Your coding-agent config. Every machine.');
-  await expect(page.locator('.hero .harness-note')).toHaveText('Currently works with OpenCode; other harnesses coming soon!');
+  await expect(page).toHaveTitle('OCP — Keep your coding-agent configuration in sync across machines.');
+  await expect(page.locator('h1')).toHaveText('Keep your coding-agent configuration in sync across machines.');
+  const supportNote = page.locator('.hero-description > .harness-note');
+  await expect(supportNote).toHaveText('Currently works with OpenCode');
+  await expect(page.locator('.hero-description')).toContainText('Currently works with OpenCode; other harnesses coming soon!');
+  await expect(supportNote).toHaveCSS('display', 'inline');
+  await expect(supportNote).toHaveCSS('border-left-width', '0px');
   await expect(page.locator('.sidebar-description')).toHaveText('Thank you for your configuration.');
   await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(252, 252, 250)');
-  await expect(page.locator('.sidebar')).toHaveCSS('background-color', 'rgb(49, 91, 140)');
-  await expect(page.locator('.sidebar .active')).toHaveCSS('color', 'rgb(245, 235, 221)');
+  await expect(page.locator('.sidebar')).toHaveCSS('background-color', 'rgb(19, 70, 134)');
+  await expect(page.locator('.sidebar .active')).toHaveCSS('color', 'rgb(253, 244, 227)');
   await expect(page.locator('.hero').getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '#getting-started');
   await expect(page.locator('.hero').getByRole('link', { name: 'Read the docs' })).toHaveAttribute('href', '/docs/');
   await expect(page.locator('main pre')).toHaveCount(3);
@@ -50,6 +62,33 @@ test('keeps the homepage concise and support status prominent', async ({ page })
   await expect(page.locator('main')).toContainText('T3');
   expect((await page.locator('main').innerText()).split(/\s+/).length).toBeLessThan(750);
 });
+
+for (const width of [390, 1440]) {
+  test(`first render stays styled without external CSS or JavaScript at ${width}px`, async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width, height: 900 } });
+    await context.route('**/*', (route) => ['stylesheet', 'font'].includes(route.request().resourceType()) ? route.abort() : route.continue());
+    const page = await context.newPage();
+    try {
+      for (const base of ['http://127.0.0.1:5175', 'http://127.0.0.1:4175/ocp-site']) {
+        await page.goto(`${base}/`);
+        await expect(page.locator('.nav-icon').first()).toHaveCSS('width', '18px');
+        await expect(page.locator('body')).toHaveCSS('font-size', width >= 1024 ? '20px' : '18px');
+        await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(252, 252, 250)');
+        await expect(page.locator('h1')).toBeVisible();
+        await expect(page.locator('.sidebar')).toBeVisible();
+        if (width > 900) {
+          await expect(page.locator('.mobile-header')).toBeHidden();
+          await expect(page.locator('.sidebar')).toHaveCSS('width', '264px');
+        } else {
+          await expect(page.locator('.mobile-header')).toBeVisible();
+        }
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      }
+    } finally {
+      await context.close();
+    }
+  });
+}
 
 test('all internal pages, anchors, and assets resolve under the production prefix', async ({ page, request }) => {
   const origin = 'http://127.0.0.1:4175';
@@ -72,7 +111,7 @@ test('all internal pages, anchors, and assets resolve under the production prefi
       const html = await document(`${url.origin}${url.pathname}`);
       if (url.hash) expect(html, value).toContain(`id="${decodeURIComponent(url.hash.slice(1))}"`);
     }
-    const assets = await page.locator('img[src], script[src], link[rel="stylesheet"]').evaluateAll((elements) => elements.map((element) => element.src || element.href));
+    const assets = await page.locator('img[src], script[src], link[rel="stylesheet"], link[rel="icon"]').evaluateAll((elements) => elements.map((element) => element.src || element.href));
     for (const asset of assets) {
       if (new URL(asset).origin !== origin) continue;
       expect((await request.get(asset)).status(), asset).toBe(200);
@@ -166,6 +205,60 @@ test('copies the chosen example and reports a clipboard fallback', async ({ cont
   await first.getByRole('button').click();
   expect(await page.evaluate(() => window.getSelection().toString())).toBe((await first.locator('code').textContent()).trimEnd());
   await expect(page.getByRole('status')).toContainText('Clipboard unavailable');
+});
+
+test('button springs respond to pointers and respect reduced motion and keyboard focus', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/');
+  const primary = page.getByRole('link', { name: 'Get started', exact: true });
+  const copy = page.locator('.copy-button').first();
+  await expect(primary).toHaveCSS('animation-name', 'none');
+  await primary.hover();
+  await expect(primary).toHaveCSS('animation-name', 'button-bounce');
+  await expect(primary).toHaveCSS('animation-duration', '0.28s');
+  await page.mouse.down();
+  await expect(primary).toHaveCSS('animation-name', 'none');
+  await expect(primary).toHaveCSS('transform', 'matrix(0.97, 0, 0, 0.97, 0, 0)');
+  await page.mouse.move(0, 0);
+  await page.mouse.up();
+  await copy.hover();
+  await expect(copy).toHaveCSS('animation-name', 'utility-bounce');
+  await expect(copy).toHaveCSS('animation-duration', '0.2s');
+  await page.mouse.move(0, 0);
+  await page.keyboard.press('Tab');
+  await primary.focus();
+  await expect(primary).toBeFocused();
+  await primary.hover();
+  await expect(primary).toHaveCSS('animation-name', 'none');
+  await expect(primary).toHaveCSS('outline-style', 'solid');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await copy.hover();
+  await expect(copy).toHaveCSS('animation-name', 'none');
+  await expect(copy).toHaveCSS('transform', 'none');
+  await expect(copy).toHaveCSS('transition-duration', '0s');
+  await primary.hover();
+  await expect(primary).toHaveCSS('animation-name', 'none');
+  await page.mouse.down();
+  await expect(primary).toHaveCSS('transform', 'none');
+  await page.mouse.move(0, 0);
+  await page.mouse.up();
+});
+
+test('touch buttons do not retain hover spring animations', async ({ browser }) => {
+  const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 }, reducedMotion: 'no-preference' });
+  try {
+    const page = await context.newPage();
+    await page.goto('http://127.0.0.1:5175/');
+    const menu = page.getByRole('button', { name: 'Menu' });
+    await menu.tap();
+    await expect(menu).toHaveAttribute('aria-expanded', 'true');
+    await expect(menu).toHaveCSS('animation-name', 'none');
+    await expect(menu).toHaveCSS('transform', 'none');
+    await menu.tap();
+    await expect(menu).toHaveAttribute('aria-expanded', 'false');
+  } finally {
+    await context.close();
+  }
 });
 
 test('navigation, OS instructions, and examples work without JavaScript', async ({ browser }) => {

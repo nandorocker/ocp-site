@@ -1,5 +1,6 @@
 import MarkdownIt from 'markdown-it';
 import anchor from 'markdown-it-anchor';
+import { readFileSync } from 'node:fs';
 
 export default function (config) {
   const markdown = new MarkdownIt({ html: true, linkify: false }).use(anchor, {
@@ -14,6 +15,8 @@ export default function (config) {
   };
   config.setLibrary('md', markdown);
   config.setNunjucksEnvironmentOptions({ autoescape: true });
+  // Keep initial layout independent of a separate CSS request, including in preview.
+  config.addShortcode('siteStyles', () => readFileSync(new URL('./src/style.css', import.meta.url), 'utf8'));
   config.addFilter('toc', (html) => [...html.matchAll(/<h2\b[^>]*id="([^"]+)"[^>]*>([\s\S]*?)<\/h2>/g)].map((match) => ({ id: match[1], title: match[2].replace(/<[^>]+>/g, '') })));
   config.addPassthroughCopy({ 'src': 'assets', 'public': '.' });
   config.addWatchTarget('src');
