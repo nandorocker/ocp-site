@@ -17,6 +17,8 @@ for (const route of routes) {
       await expect(page.locator('h1')).toHaveCount(1);
       await expect(page.locator('main')).toBeVisible();
       await expect(page.locator('body')).not.toContainText('↗');
+      await expect(page.locator('body')).not.toContainText(/ocp ui|browser editor/i);
+      await expect(page.locator('#browser')).toHaveCount(0);
       expect(await page.locator('.desktop-brand img').evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
       const logoPath = `${base.includes('4175') ? '/ocp-site' : ''}/logo.svg`;
       for (const logo of await page.locator('.brand img').all()) {
@@ -153,10 +155,12 @@ test('author credits and coffee buttons keep their exact styling and destination
   await expect(page.locator('.closing')).toContainText('Nando Rossi, the developer behind OCP.');
   const coffees = page.getByRole('link', { name: 'Buy me a coffee', exact: true });
   await expect(coffees).toHaveCount(2);
+  await expect(page.locator('.sidebar-footer .coffee-link')).toHaveText('Buy me a coffee');
+  await expect(page.locator('.sidebar-footer')).not.toContainText('AGPL');
   for (const coffee of await coffees.all()) {
     await expect(coffee).toHaveAttribute('href', 'https://buymeacoffee.com/nandorossi');
     await expect(coffee).toHaveAttribute('rel', 'noopener noreferrer');
-    await expect(coffee).toHaveCSS('background-color', 'rgb(255, 221, 0)');
+    await expect(coffee).toHaveCSS('background-color', 'rgb(254, 178, 26)');
     await expect(coffee).toHaveCSS('color', 'rgb(26, 18, 8)');
     await expect(coffee).toHaveCSS('border-radius', '8px');
   }

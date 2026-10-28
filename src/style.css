@@ -30,9 +30,9 @@ a, button { -webkit-tap-highlight-color: transparent; }
 main:focus { outline: none; }
 h1, h2, h3, p { margin-top: 0; }
 h1, h2, h3 { color: var(--ink); }
-h1, h2 { font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; }
-h1 { font-size: clamp(2.35rem, 3.7vw, 3rem); font-weight: 700; line-height: 1.07; letter-spacing: -.025em; margin-bottom: 1.3rem; }
-h2 { font-size: 1.75rem; font-weight: 600; line-height: 1.2; margin-bottom: 1rem; }
+h1, h2, h3, h4, h5, h6 { font-family: 'Stardos Stencil', Georgia, serif; font-weight: 400; }
+h1 { font-size: clamp(2.35rem, 3.7vw, 3rem); line-height: 1.07; letter-spacing: -.025em; margin-bottom: 1.3rem; }
+h2 { font-size: 1.75rem; line-height: 1.2; margin-bottom: 1rem; }
 h3 { font-size: 1.05rem; line-height: 1.4; margin-bottom: .5rem; }
 p, ul, ol { margin-bottom: 1.1rem; }
 img, svg { max-width: 100%; }
@@ -42,11 +42,16 @@ code, pre { font-family: 'DM Mono', 'SFMono-Regular', Consolas, monospace; }
 .skip-link:focus { top: 12px; }
 .sidebar { position: fixed; inset: 0 auto 0 0; width: 264px; padding: 30px 20px 22px; background: var(--sidebar); border-right: 1px solid #103b70; display: flex; flex-direction: column; overflow-y: auto; z-index: 5; }
 .sidebar :focus-visible, .mobile-header :focus-visible { outline-color: var(--on-sidebar); }
-.sidebar-brand { padding: 0 10px; }
-.brand { display: inline-flex; align-items: center; gap: 9px; font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-size: 38px; font-weight: 700; line-height: 1; color: var(--on-sidebar); text-decoration: none; }
+.sidebar-brand { padding: 0; }
+.brand { display: inline-flex; align-items: center; gap: 9px; font-family: 'Stardos Stencil', Georgia, serif; font-size: 56px; font-weight: 700; line-height: 1; color: var(--on-sidebar); text-decoration: none; }
 .brand img { object-fit: contain; border-radius: 4px; }
+.brand > span { transform: translateY(.05em); }
 .brand-period { color: var(--amber); }
-.sidebar-description { font-size: .76rem; line-height: 1.5; color: var(--sidebar-muted); margin: 14px 0 25px; }
+.sidebar-brand .brand, .mobile-header .brand { display: flex; }
+.desktop-brand { font-size: 73px; }
+.desktop-brand img { width: 54px; height: 54px; flex-shrink: 0; }
+.sidebar-description, .mobile-motto { font-size: 9px; line-height: 1.4; text-transform: uppercase; white-space: nowrap; color: var(--sidebar-muted); }
+.sidebar-description { font-size: 11px; margin: 2px 0 25px; }
 .sidebar nav { margin-bottom: 28px; }
 .nav-link { display: flex; align-items: center; gap: 10px; min-height: 37px; padding: 6px 8px; color: var(--sidebar-muted); font-size: .76rem; font-weight: 600; text-decoration: none; line-height: 1.4; }
 .nav-link:hover { color: #fff; }
@@ -64,7 +69,7 @@ code, pre { font-family: 'DM Mono', 'SFMono-Regular', Consolas, monospace; }
 .sidebar-footer { padding: 18px 8px 0; font-size: .72rem; line-height: 1.8; color: var(--sidebar-muted); }
 .sidebar-footer a { color: inherit; text-decoration: none; }
 .sidebar-footer a:hover { text-decoration: underline; }
-.sidebar-credit { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 3px; }
+.sidebar-credit { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
 .page-shell { margin-left: 264px; padding: 0 48px; }
 .home { max-width: 960px; margin: auto; }
 .hero { display: flex; align-items: center; gap: 30px; padding: 65px 0 52px; }
@@ -150,10 +155,9 @@ pre { margin: 0; padding: 16px; overflow-x: auto; font-size: .8rem; line-height:
 .footer-credit a:first-child { color: var(--blue); font-weight: 750; }
 .footer-support { display: flex; align-items: center; gap: 13px; flex-wrap: wrap; }
 /* BouncyGen's button metrics stay independent of the documentation's root size. */
-.coffee-link { display: inline-flex; align-items: center; gap: 5.6px; background: #ffdd00; color: #1a1208; font-family: 'Work Sans', system-ui, sans-serif; font-size: 13.12px; font-weight: 800; line-height: normal; padding: 4.8px 10.4px; border: 0; border-radius: 8px; text-decoration: none; white-space: nowrap; transition: opacity .15s, transform .1s; }
+.coffee-link { display: inline-flex; align-items: center; gap: 5.6px; background: var(--amber); color: #1a1208; font-family: 'Work Sans', system-ui, sans-serif; font-size: 13.12px; font-weight: 800; line-height: normal; padding: 4.8px 10.4px; border: 0; border-radius: 8px; text-decoration: none; white-space: nowrap; transition: opacity .15s, transform .1s; }
 .coffee-link:hover { color: #1a1208; animation: coffee-bounce .6s forwards; }
 .sidebar-footer .coffee-link { color: #1a1208; text-decoration: none; }
-.coffee-link-mini { width: 28px; height: 28px; padding: 0; justify-content: center; flex-shrink: 0; }
 @keyframes coffee-bounce {
   0% { transform: scaleX(.856) scaleY(1.144); }
   2% { transform: scaleX(.9642) scaleY(1.1295); }
@@ -189,7 +193,7 @@ pre { margin: 0; padding: 16px; overflow-x: auto; font-size: .8rem; line-height:
   to { transform: scale(1.11); }
 }
 .mobile-header { display: none; }
-.mobile-motto { color: var(--sidebar-muted); font-size: .8rem; line-height: 1.4; margin: 7px 0 0; }
+.mobile-motto { margin: 2px 0 0; }
 .legacy-links { display: none; }
 .legacy-links:has(:target) { display: flex; flex-wrap: wrap; gap: 20px; padding: 20px 0; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
@@ -210,7 +214,7 @@ pre { margin: 0; padding: 16px; overflow-x: auto; font-size: .8rem; line-height:
   html { scroll-padding-top: 125px; }
   .mobile-header { display: flex; position: sticky; top: 0; z-index: 6; background: var(--sidebar); border-bottom: 1px solid #103b70; min-height: 108px; padding: 14px 24px; align-items: center; justify-content: space-between; gap: 18px; }
   .mobile-header > div { min-width: 0; }
-  .mobile-header .brand { font-size: 30px; }
+  .mobile-header .brand { font-size: 42px; }
   .menu-toggle { flex-shrink: 0; border: 1px solid #a3bdd8; background: transparent; color: var(--on-sidebar); border-radius: 3px; padding: 8px 10px; font-size: .8rem; }
   .menu-toggle span { margin-left: 8px; }
   .sidebar { position: static; width: auto; padding: 18px 24px; border-right: 0; border-bottom: 1px solid #103b70; }
@@ -230,6 +234,7 @@ pre { margin: 0; padding: 16px; overflow-x: auto; font-size: .8rem; line-height:
   .page-footer { font-size: .8rem; }
 }
 @media (max-width: 540px) {
+  .mobile-motto { font-size: 8px; }
   .page-shell { padding: 0 22px; }
   .hero { display: block; position: relative; padding-top: 30px; padding-bottom: 32px; }
   .hero h1 { padding-right: 60px; font-size: 2.35rem; }
