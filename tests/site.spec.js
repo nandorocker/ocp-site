@@ -244,6 +244,15 @@ test('author credits and coffee buttons keep their exact styling and destination
   await expect(page.locator('.footer-credit').getByRole('link', { name: 'AGPL-3.0', exact: true })).toHaveAttribute('href', 'https://github.com/nandorocker/ocp/blob/main/LICENSE');
   await expect(page.locator('.footer-support')).toContainText('Find this useful? Support me!');
   await expect(page.locator('.closing')).toContainText('Nando Rossi, the developer behind OCP.');
+  await expect(page.locator('.author-card')).toHaveCSS('border-top-color', 'rgb(19, 70, 134)');
+  await expect(page.locator('.author-card')).toHaveCSS('box-shadow', 'rgb(19, 70, 134) 12px 12px 0px 0px');
+  await expect(page.locator('.author-avatar')).toHaveCSS('border-radius', '50%');
+  const cardBox = await page.locator('.author-card').boundingBox();
+  const avatarBox = await page.locator('.author-avatar').boundingBox();
+  expect(avatarBox.y).toBeLessThan(cardBox.y);
+  expect(avatarBox.x).toBeGreaterThan(cardBox.x);
+  await expect(page.locator('.author-avatar')).toHaveCSS('border-top-width', '2px');
+  expect(await page.locator('.author-avatar').evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
   const coffees = page.getByRole('link', { name: 'Buy me a coffee', exact: true });
    await expect(coffees).toHaveCount(1);
    await expect(page.locator('.page-footer .coffee-link')).toHaveText('Buy me a coffee');
