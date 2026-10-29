@@ -51,7 +51,7 @@ code, pre { font-family: 'DM Mono', 'SFMono-Regular', Consolas, monospace; }
 .hero { padding: 65px 0 52px; }
 .hero-content { display: flex; align-items: center; gap: 30px; }
 .hero-copy { flex: 1; min-width: 0; }
-.hero h1 { font-size: clamp(2.4rem, 4.4vw, 3.4rem); }
+.hero h1 { font-size: clamp(2.4rem, 4.4vw, 3.4rem); font-weight: 700; }
 .hero-description { max-width: 54ch; color: var(--muted); font-size: 1.05rem; line-height: 1.6; }
 .hero-illustration { display: block; width: 48%; max-width: 440px; height: auto; flex-shrink: 0; }
 .harness-note { background: var(--cream); color: var(--ink); font-weight: 600; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
