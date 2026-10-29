@@ -94,7 +94,9 @@ under the production `/ocp-site/` prefix. They check internal links and anchors,
 assets, active navigation, OS instructions, clipboard success/fallback, author
 and support links, OS-tab keyboard interaction, legacy links, no-JavaScript
 access, first rendering with external stylesheets blocked, five viewport widths,
-and automated WCAG A/AA checks on every page.
+and automated WCAG A/AA checks on every page. The two faded ghost filenames in
+the comparison illustration are excluded: their low contrast depicts absence.
+Their full-opacity “Missing” labels and the remaining diagram stay checked.
 Tests start separate loopback servers on ports 5175 and 4175 and save layout
 screenshots in the ignored `test-results/` directory.
 
