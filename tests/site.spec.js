@@ -71,7 +71,9 @@ test('landing page follows the copy deck and promotes installation', async ({ pa
   await page.goto('/');
   await expect(page).toHaveTitle('OCP: Take your coding agent setup anywhere you work');
   await expect(page.locator('h1')).toHaveText('Take your coding agent setup anywhere you work.');
-  await expect(page.locator('.trust-line')).toContainText('OpenCode today, more harnesses coming');
+  await expect(page.locator('.hero-support')).toHaveText('Currently supports OpenCode. More harnesses coming soon!');
+  await expect(page.locator('.hero-support')).toHaveCSS('text-decoration-color', 'rgb(254, 178, 26)');
+  await expect(page.locator('.trust-line, .hero-visual figcaption')).toHaveCount(0);
   await expect(page.locator('#copy-status')).toBeEmpty();
   await expect(page.locator('#copy-toast')).toBeHidden();
   await expect(page.locator('body')).not.toContainText('Thank you for your configuration.');
@@ -94,7 +96,7 @@ test('landing page follows the copy deck and promotes installation', async ({ pa
   }
   await expect(page.locator('.before .missing-file .file-name')).toHaveText(['writing/SKILL.md', 'bridge.ts']);
   for (const file of await page.locator('.before .missing-file .file-name').all()) {
-    await expect(file).toHaveCSS('text-decoration-line', 'none');
+    await expect(file).toHaveCSS('text-decoration-line', 'line-through');
     await expect(file).toHaveCSS('opacity', '0.5');
   }
   await expect(page.locator('.before .drift-status')).toHaveText(['✕ Drifts', '✕ Drifts']);
@@ -117,6 +119,10 @@ test('landing page follows the copy deck and promotes installation', async ({ pa
   })));
   expect(fileNames).toEqual(Array(4).fill(['reviewer.md', 'writing/SKILL.md', 'debugging/SKILL.md', 'bridge.ts', 'opencode.json']));
   await expect(page.locator('.directives article')).toHaveCount(3);
+  await expect(page.locator('.profile-comparison')).toContainText('Implementer');
+  await expect(page.locator('.profile-comparison')).toContainText('Reviewer');
+  await expect(page.locator('.machine-diagram, .profile-diagram, .machines-section')).toHaveCount(0);
+  await expect(page.locator('#machines')).toHaveClass('machine-note');
   await expect(page.locator('.backup-warning')).toContainText('Back up first.');
   await expect(page.locator('#getting-started')).toContainText('~/.local/bin/ocp setup');
   await expect(page.locator('#getting-started')).toContainText('opencode');
@@ -336,29 +342,37 @@ test('FAQ supports keyboard use and install blocks scroll instead of wrapping', 
   await expect.poll(() => code.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
 });
 
-test('button springs respond to pointers and respect reduced motion and keyboard focus', async ({ page }) => {
+test('buttons lift against solid shadows and respect reduced motion and keyboard focus', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/');
    const primary = page.locator('.hero').getByRole('link', { name: 'Install', exact: true });
   const copy = page.locator('.copy-button').first();
   await expect(primary).toHaveCSS('animation-name', 'none');
   await primary.hover();
-  await expect(primary).toHaveCSS('animation-name', 'button-bounce');
-  await expect(primary).toHaveCSS('animation-duration', '0.28s');
+  await expect(primary).toHaveCSS('transform', 'matrix(1, 0, 0, 1, -3, -3)');
+  await expect(primary).toHaveCSS('box-shadow', 'rgb(19, 70, 134) 5px 5px 0px 0px');
+  await expect(primary).toHaveCSS('border-radius', '8px');
   await page.mouse.down();
   await expect(primary).toHaveCSS('animation-name', 'none');
-  await expect(primary).toHaveCSS('transform', 'matrix(0.97, 0, 0, 0.97, 0, 0)');
+  await expect(primary).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 2, 2)');
+  await expect(primary).toHaveCSS('box-shadow', 'rgb(19, 70, 134) 0px 0px 0px 0px');
   await page.mouse.move(0, 0);
   await page.mouse.up();
   await copy.hover();
-  await expect(copy).toHaveCSS('animation-name', 'utility-bounce');
-  await expect(copy).toHaveCSS('animation-duration', '0.2s');
+  await expect(copy).toHaveCSS('transform', 'matrix(1, 0, 0, 1, -2, -2)');
+  await expect(copy).toHaveCSS('box-shadow', 'rgb(19, 70, 134) 3px 3px 0px 0px');
+  await expect(copy).toHaveCSS('border-radius', '8px');
+  const coffee = page.locator('.coffee-link');
+  await coffee.hover();
+  await expect(coffee).toHaveCSS('transform', 'matrix(1, 0, 0, 1, -3, -3)');
+  await expect(coffee).toHaveCSS('box-shadow', 'rgb(9, 12, 16) 5px 5px 0px 0px');
   await page.mouse.move(0, 0);
   await page.keyboard.press('Tab');
   await primary.focus();
   await expect(primary).toBeFocused();
   await primary.hover();
   await expect(primary).toHaveCSS('animation-name', 'none');
+  await expect(primary).toHaveCSS('transform', 'none');
   await expect(primary).toHaveCSS('outline-style', 'solid');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await copy.hover();
@@ -371,6 +385,13 @@ test('button springs respond to pointers and respect reduced motion and keyboard
   await expect(primary).toHaveCSS('transform', 'none');
   await page.mouse.move(0, 0);
   await page.mouse.up();
+  await page.goto('/quick-start/');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  const tab = page.getByRole('tab', { name: 'Linux', exact: true });
+  await tab.hover();
+  await expect(tab).toHaveCSS('border-radius', '8px');
+  await expect(tab).toHaveCSS('transform', 'matrix(1, 0, 0, 1, -3, -3)');
+  await expect(tab).toHaveCSS('box-shadow', 'rgb(19, 70, 134) 5px 5px 0px 0px');
 });
 
 test('shared navbar works on touch screens', async ({ browser }) => {

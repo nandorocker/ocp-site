@@ -55,10 +55,10 @@ accent rules and an illustration detail. Reading surfaces stay near-white
 `#FCFCFA`, with slate body text and cool neutral code blocks. Coffee buttons use
 the site's amber while retaining BouncyGen's typography, sizing, and bounce.
 
-Primary and utility button springs are tuned in [BouncyGen](https://bounce.nan.do/)
-and embedded as CSS keyframes. They run only on fine-pointer hover, not keyboard
-focus or touch hover; reduced motion disables their movement. The coffee button
-retains its original animation.
+Buttons have rounded corners and solid lower-right shadows. Fine-pointer hover
+lifts the face up and left; pressing lowers it back toward the shadow. Copy
+buttons use a smaller lift. Keyboard focus and reduced motion keep the face
+stationary, and touch screens don't retain a hover lift.
 
 - `site/index.njk`: landing page, diagrams, and setup overview.
 - `site/install.njk`: compatibility redirect to the installation section.

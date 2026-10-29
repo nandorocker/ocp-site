@@ -12,14 +12,12 @@ permalink: /index.html
   <header class="hero">
     <div class="hero-copy">
       <h1>Take your coding agent setup anywhere you work.</h1>
-      <p class="hero-description">Forget the trail of folders and dotfiles. Keep your agents, skills, plugins, and settings in one simple source, and OCP generates the config and syncs it to every machine.</p>
+      <p class="hero-description">Forget the trail of folders and dotfiles. Keep your agents, skills, plugins, and settings in one simple source, and OCP generates the config and syncs it to every machine. <span class="hero-support">Currently supports OpenCode. More harnesses coming soon!</span></p>
       {{ example('Install OCP · macOS / Linux', installCommand) }}
       <div class="hero-actions"><a class="button button-primary" href="#getting-started">Install <span aria-hidden="true">→</span></a><a class="button button-secondary" href="{{ '/docs/' | url }}">Read the docs</a></div>
-      <p class="trust-line">Open source (AGPL-3.0) · Checksum-verified installer · OpenCode today, more harnesses coming</p>
     </div>
     <figure class="hero-visual">
       <img class="hero-illustration" src="{{ '/ocp-network.png' | url }}" width="1448" height="1086" alt="An OCP hub connecting shared skills, plugins, agents, and subagents to a laptop, desktop, and server.">
-      <figcaption>Dead or alive, your setup is coming with you.</figcaption>
     </figure>
   </header>
 
@@ -55,13 +53,17 @@ permalink: /index.html
   </section>
 
   <section id="profiles" class="home-section feature-split" aria-labelledby="profiles-title">
-    <div><h2 id="profiles-title">One setup. Different jobs.</h2><p>A profile is a named configuration for a kind of work, like implementation, review, or experiments. Profiles inherit shared agents, skills, and settings, so you never duplicate them. Switch with one command and your whole setup follows.</p>{{ example('Switch profiles', 'ocp use review') }}<a class="text-link" href="{{ '/docs/' | url }}#profiles">Working with profiles →</a></div>
-    <div class="profile-diagram" role="img" aria-label="Shared base inherited by implementation, review, and experiments profiles. Review is active."><div class="diagram-node shared-base">Shared base<small>agents · skills · settings</small></div><div class="inheritance-lines" aria-hidden="true"></div><div class="profile-branches"><div class="diagram-node">implementation</div><div class="diagram-node active-profile">review<small>active profile</small></div><div class="diagram-node">experiments</div></div></div>
-  </section>
-
-  <section id="machines" class="home-section feature-split machines-section" aria-labelledby="machines-title">
-    <div class="machine-diagram" role="img" aria-label="One Git source repository shared by laptop, desktop, and remote dev box. The remote dev box has a machine override."><div class="diagram-node git-source">Git repo<small>your OCP source</small></div><div class="sync-label">↕ ocp sync</div><div class="machine-branches"><div class="diagram-node">Laptop</div><div class="diagram-node">Desktop</div><div class="diagram-node">Remote dev<small class="override-tag">machine override</small></div></div></div>
-    <div><h2 id="machines-title">Same setup, every machine.</h2><p>Keep one source for your laptop, desktop, and remote dev machine. Add per-machine overrides where you need them. When the source lives in Git, <code>ocp sync</code> brings changes between machines and renders your profiles.</p><aside class="callout"><code>ocp sync</code> can commit and push changes. Read how sync works before using it on a repository you share.</aside><a class="text-link" href="{{ '/docs/' | url }}#machines">Across machines →</a></div>
+    <div><h2 id="profiles-title">One setup. Different jobs.</h2><p>Keep implementation and review in separate profiles. Share the settings they have in common, and choose the agents and skills each job needs.</p>{{ example('Switch profiles', 'ocp use review') }}<a class="text-link" href="{{ '/docs/' | url }}#profiles">Working with profiles →</a></div>
+    <table class="profile-comparison">
+      <caption>For example, two profiles for different jobs:</caption>
+      <thead><tr><td></td><th scope="col">Implementation</th><th scope="col">Review</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Focus</th><td>Write code</td><td>Check changes</td></tr>
+        <tr><th scope="row">Agent</th><td>Implementer</td><td>Reviewer</td></tr>
+        <tr><th scope="row">Skills</th><td>Coding</td><td>Code review</td></tr>
+      </tbody>
+    </table>
+    <p id="machines" class="machine-note">Need different settings on one machine? Add a per-machine override. <a href="{{ '/docs/' | url }}#machines">Across machines →</a></p>
   </section>
 
   <section class="agent-highlight" aria-labelledby="agent-title">
