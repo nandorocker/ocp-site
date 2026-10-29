@@ -84,6 +84,38 @@ test('landing page follows the copy deck and promotes installation', async ({ pa
   await expect(page.locator('main pre')).toHaveCount(6);
   await expect(page.locator('main .copy-button')).toHaveCount(6);
   await expect(page.locator('.comparison-panel')).toHaveCount(2);
+  await expect(page.locator('.before .config-machine')).toHaveCount(2);
+  await expect(page.locator('.before .drift-label')).toHaveText(['Different', 'Different', 'Missing', 'Missing']);
+  await expect(page.locator('.before .config-machine').first()).toContainText('debugging/SKILL.md');
+  await expect(page.locator('.before .config-machine').last()).toContainText('debugging/SKILL.md');
+  for (const label of await page.locator('.difference-label').all()) {
+    await expect(label).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(label).toHaveCSS('border-color', 'rgb(254, 178, 26)');
+  }
+  await expect(page.locator('.before .missing-file .file-name')).toHaveText(['writing/SKILL.md', 'bridge.ts']);
+  for (const file of await page.locator('.before .missing-file .file-name').all()) {
+    await expect(file).toHaveCSS('text-decoration-line', 'none');
+    await expect(file).toHaveCSS('opacity', '0.5');
+  }
+  await expect(page.locator('.before .drift-status')).toHaveText(['✕ Drifts', '✕ Drifts']);
+  await expect(page.locator('.before .drift-status').first()).toHaveCSS('font-size', await page.locator('.after .match-label').first().evaluate((element) => getComputedStyle(element).fontSize));
+  await expect(page.locator('.manual-transfer, .comparison-caption')).toHaveCount(0);
+  const beforeWindows = await page.locator('.before .config-machine').all();
+  const desktopWindow = await beforeWindows[0].boundingBox();
+  const laptopWindow = await beforeWindows[1].boundingBox();
+  expect(laptopWindow.x).toBeLessThan(desktopWindow.x + desktopWindow.width);
+  expect(laptopWindow.y).toBeLessThan(desktopWindow.y + desktopWindow.height);
+  await expect(page.locator('.after .ocp-source')).toContainText('Agents');
+  await expect(page.locator('.after .config-machine')).toHaveCount(2);
+  await expect(page.locator('.after .match-label')).toHaveText(['✓ In sync', '✓ In sync']);
+  const generatedFiles = await page.locator('.after .config-files').allTextContents();
+  expect(generatedFiles[0]).toBe(generatedFiles[1]);
+  const fileNames = await page.locator('.comparison .config-machine').evaluateAll((machines) => machines.map((machine) => [...machine.querySelectorAll('.config-files li')].filter((item) => !item.querySelector('ul')).map((item) => {
+    const copy = item.cloneNode(true);
+    copy.querySelectorAll('.drift-label').forEach((label) => label.remove());
+    return copy.textContent.trim();
+  })));
+  expect(fileNames).toEqual(Array(4).fill(['reviewer.md', 'writing/SKILL.md', 'debugging/SKILL.md', 'bridge.ts', 'opencode.json']));
   await expect(page.locator('.directives article')).toHaveCount(3);
   await expect(page.locator('.backup-warning')).toContainText('Back up first.');
   await expect(page.locator('#getting-started')).toContainText('~/.local/bin/ocp setup');
@@ -106,8 +138,8 @@ for (const width of [390, 1440]) {
         await expect(page.locator('h1')).toBeVisible();
         const illustration = page.locator('.hero-illustration');
         await expect(illustration).toBeVisible();
-         await expect(illustration).toHaveAttribute('src', `${base.includes('4175') ? '/ocp-site' : ''}/ocp-portability.svg`);
-         expect(await illustration.evaluate((img) => img.complete && img.naturalWidth === 640)).toBe(true);
+         await expect(illustration).toHaveAttribute('src', `${base.includes('4175') ? '/ocp-site' : ''}/ocp-network.png`);
+         expect(await illustration.evaluate((img) => img.complete && img.naturalWidth === 1448)).toBe(true);
         const imageBounds = await illustration.boundingBox();
         expect(imageBounds.width).toBeGreaterThan(width > 900 ? 300 : 120);
         const copyBounds = await page.locator('.hero-copy').boundingBox();
@@ -116,7 +148,7 @@ for (const width of [390, 1440]) {
         } else {
           expect(imageBounds.y).toBeGreaterThanOrEqual(copyBounds.y + copyBounds.height);
         }
-         expect(imageBounds.width / imageBounds.height).toBeCloseTo(640 / 520, 2);
+         expect(imageBounds.width / imageBounds.height).toBeCloseTo(1448 / 1086, 2);
          await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
          await expect(page.locator('.copy-button').first()).toBeHidden();
          await expect(page.locator('#copy-status')).toBeEmpty();
@@ -407,7 +439,13 @@ for (const width of [320, 390, 768, 1024, 1440]) {
         expect(await page.locator('pre').first().evaluate((element) => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(14);
         await page.screenshot({ path: `test-results/quick-start-${width}.png`, fullPage: true });
       }
-      if (route === '/') await page.screenshot({ path: `test-results/home-${width}.png`, fullPage: true });
+      if (route === '/') {
+        const desktop = await page.locator('.before .config-machine').first().boundingBox();
+        const laptop = await page.locator('.before .config-machine').last().boundingBox();
+        expect(laptop.x).toBeLessThan(desktop.x + desktop.width);
+        expect(laptop.y).toBeLessThan(desktop.y + desktop.height);
+        await page.screenshot({ path: `test-results/home-${width}.png`, fullPage: true });
+      }
     }
   });
 }

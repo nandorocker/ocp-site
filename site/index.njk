@@ -6,6 +6,7 @@ description: OCP keeps your agents, skills, plugins, and settings in one simple 
 permalink: /index.html
 ---
 {% from 'example.njk' import example %}
+{% from 'config-machine.njk' import machine %}
 {% set installCommand = 'curl -fsSL https://raw.githubusercontent.com/nandorocker/ocp/main/install.sh | sh' %}
 <main id="main" class="home" tabindex="-1">
   <header class="hero">
@@ -17,7 +18,7 @@ permalink: /index.html
       <p class="trust-line">Open source (AGPL-3.0) · Checksum-verified installer · OpenCode today, more harnesses coming</p>
     </div>
     <figure class="hero-visual">
-      <img class="hero-illustration" src="{{ '/ocp-portability.svg' | url }}" width="640" height="520" alt="One OCP source generating the same agent setup on a laptop and a desktop.">
+      <img class="hero-illustration" src="{{ '/ocp-network.png' | url }}" width="1448" height="1086" alt="An OCP hub connecting shared skills, plugins, agents, and subagents to a laptop, desktop, and server.">
       <figcaption>Dead or alive, your setup is coming with you.</figcaption>
     </figure>
   </header>
@@ -31,10 +32,17 @@ permalink: /index.html
       <li>Your review agents and your build agents share one tangled global config.</li>
     </ul>
     <div class="comparison">
-      <div class="comparison-panel before"><h3>Without OCP</h3><div class="file-tree" aria-label="Scattered configuration copied by hand">desktop/<br>├─ .config/opencode/agents/<br>├─ experiments/skills/<br>└─ dotfiles/settings.json<br><span class="manual-copy">↓ copied by hand</span><br>laptop/<br>├─ agents/ <span class="drift-tag">drifted</span><br>└─ old-skills/ <span class="drift-tag">drifted</span></div></div>
-      <div class="comparison-panel after"><h3>With OCP</h3><div class="file-tree">source/<br>├─ ocp.yaml<br>├─ agents/ &amp; skills/<br>├─ plugins/<br>└─ profiles/<br><span class="apply-line">↓ ocp apply</span><br>laptop/ &nbsp; desktop/<br><span class="same-tag">same setup, generated locally</span></div></div>
+      <div class="comparison-panel before">
+        <h3>Without OCP</h3>
+        <div class="drift-machines">{{ machine('Desktop', 'drifted-desktop') }}{{ machine('Laptop', 'drifted') }}</div>
+      </div>
+      <div class="comparison-panel after">
+        <h3>With OCP</h3>
+        <div class="ocp-source"><strong>Your OCP source</strong><div class="source-components"><span>Agents</span><span>Skills</span><span>Plugins</span><span>Settings</span></div></div>
+        <div class="generation-flow"><span>Sync the source. Generate on each machine.</span><div class="generation-branches" aria-hidden="true"><span>↓</span><span>↓</span></div></div>
+        <div class="generated-machines">{{ machine('Desktop', 'generated') }}{{ machine('Laptop', 'generated') }}</div>
+      </div>
     </div>
-    <p class="differentiator">OpenCode gives you config files. OCP adds one source, profiles that inherit, and per-machine overrides.</p>
   </section>
 
   <section class="home-section" aria-labelledby="directives-title">

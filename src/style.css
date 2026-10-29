@@ -206,12 +206,34 @@ pre { margin: 0; padding: 16px; overflow-x: auto; font-size: .8rem; line-height:
 .comparison-panel { padding: 28px; border: 1px solid var(--line); background: var(--code); min-width: 0; }
 .comparison-panel h3 { font: 800 1rem 'Nunito Sans', sans-serif; }
 .comparison-panel.after { border-color: var(--blue); }
-.file-tree { font: .75rem/1.9 'DM Mono', monospace; overflow-x: auto; white-space: nowrap; padding-top: 14px; }
-.manual-copy { color: var(--muted); }
-.apply-line { display: inline-block; background: var(--amber); color: #134686; padding: 0 8px; }
-.drift-tag { color: var(--text); border-bottom: 2px solid var(--accent); }
-.same-tag { color: var(--blue); }
-.home .differentiator { margin: 24px 0 0; font-size: .85rem; color: var(--muted); }
+.drift-machines { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); padding-top: 36px; }
+.drift-machines .config-machine { grid-column: 1 / span 6; grid-row: 1; align-self: start; padding: 14px; }
+.drift-machines .config-machine + .config-machine { grid-column: 6 / span 6; margin-top: 220px; z-index: 1; }
+.drift-status { font-size: .6rem; font-weight: 750; color: #c02d1a; }
+.config-machine { min-width: 0; padding: 18px; border: 1px solid var(--line); background: var(--paper); }
+.machine-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; font-size: .8rem; color: var(--ink); }
+.config-root { font: .65rem/1.6 'DM Mono', monospace; color: var(--muted); overflow-wrap: anywhere; }
+.config-files, .config-files ul { list-style: none; margin: 10px 0 0; padding-left: 14px; border-left: 1px solid var(--line); }
+.config-files ul { margin: 0; }
+.config-files li { padding: 3px 0; font: .65rem/1.7 'DM Mono', monospace; overflow-wrap: anywhere; }
+.config-files small { display: block; font: .65rem/1.5 'Nunito Sans', sans-serif; color: var(--muted); }
+.drift-label { display: inline-block; margin-left: 10px; padding: 1px 6px; border: 1px solid var(--accent); color: var(--text); font: 750 .6rem/1.5 'Nunito Sans', sans-serif; }
+.difference-label { border-color: var(--amber); }
+.missing-file .file-name { color: var(--muted); opacity: .5; }
+.different-file { text-decoration: underline dotted var(--accent); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.generation-flow { text-align: center; font-size: .7rem; color: var(--muted); padding: 16px 0; }
+.ocp-source { max-width: 340px; margin: 36px auto 0; padding: 24px; border: 2px solid var(--blue); background: var(--paper); text-align: center; }
+.ocp-source > strong { color: var(--ink); font-size: .9rem; }
+.source-components { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 16px 0; }
+.source-components span { font-size: .7rem; padding: 3px 8px; background: var(--code); color: var(--ink); }
+.generation-flow { margin-top: 12px; padding-bottom: 0; }
+.generation-branches { display: flex; justify-content: space-around; position: relative; padding-top: 24px; margin-top: 18px; font-size: 1.4rem; line-height: 1; color: var(--blue); background: linear-gradient(var(--blue),var(--blue)) center top / 1px 12px no-repeat; }
+.generation-branches::before { content: ''; position: absolute; top: 12px; left: 25%; right: 25%; border-top: 1px solid var(--blue); }
+.generation-branches span { position: relative; }
+.generation-branches span::before { content: ''; position: absolute; height: 12px; border-left: 1px solid var(--blue); left: 50%; bottom: 100%; }
+.generated-machines { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.generated-machines .config-machine { padding: 14px; }
+.match-label { font-size: .6rem; font-weight: 750; color: #23733e; }
 .directives { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: 36px; }
 .directives article { border-top: 3px solid var(--blue); padding: 22px 0 0; }
 .directive-symbol { font-size: 1.7rem; color: var(--blue); }
@@ -258,6 +280,7 @@ pre { margin: 0; padding: 16px; overflow-x: auto; font-size: .8rem; line-height:
 .install-panel > :last-child { margin-bottom: 0; }
 .install-tabs { margin: 24px 0; }
 @media (max-width: 1000px) {
+  .comparison { grid-template-columns: 1fr; }
   .home .hero { gap: 24px; }
   .feature-split { gap: 32px; }
   .profile-branches { grid-template-columns: 1fr; padding-top: 16px; }
@@ -298,6 +321,14 @@ pre { margin: 0; padding: 16px; overflow-x: auto; font-size: .8rem; line-height:
   .landing-nav .brand { font-size: 28px; gap: 0; }
   .comparison { grid-template-columns: 1fr; gap: 16px; }
   .comparison-panel { padding: 24px 18px; }
+  .drift-machines .config-machine { grid-column: 1 / span 11; }
+  .drift-machines .config-machine + .config-machine { grid-column: 2 / span 11; margin-top: 240px; }
+  .generated-machines { grid-template-columns: 1fr; gap: 20px; border-left: 1px solid var(--blue); margin-left: 8px; padding-left: 20px; }
+  .generation-branches { justify-content: flex-start; margin-left: 0; background: none; padding-top: 0; }
+  .generation-branches::before, .generation-branches span:last-child { display: none; }
+  .generation-branches span::before { display: none; }
+  .generated-machines .config-machine { position: relative; }
+  .generated-machines .config-machine::before { content: '→'; position: absolute; top: 16px; left: -21px; color: var(--blue); line-height: 20px; }
   .home .start-steps > li { padding-left: 32px; }
   .home .start-steps > li::before { font-size: 1.5rem; }
   .machine-diagram { padding: 28px 10px; }
@@ -308,6 +339,8 @@ pre { margin: 0; padding: 16px; overflow-x: auto; font-size: .8rem; line-height:
   .profile-branches .diagram-node::before { height: 9px; }
 }
 @media (prefers-color-scheme: dark) {
+  .match-label { color: #83d69b; }
+  .drift-status { color: #ff8a79; }
   :root {
     color-scheme: dark;
     --paper: #101923;

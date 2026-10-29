@@ -1,0 +1,12 @@
+{% macro machine(name, state) %}
+<div class="config-machine">
+  <div class="machine-heading"><strong>{{ name }}</strong>{% if state == 'generated' %}<span class="match-label">✓ In sync</span>{% else %}<span class="drift-status">✕ Drifts</span>{% endif %}</div>
+  <div class="config-root">~/.config/opencode/</div>
+  <ul class="config-files">
+    <li>agents/<ul><li><span{% if state != 'generated' %} class="different-file"{% endif %}>reviewer.md</span>{% if state != 'generated' %}<span class="drift-label difference-label">Different</span>{% endif %}</li></ul></li>
+    <li>skills/<ul><li{% if state == 'drifted' %} class="missing-file"{% endif %}><span class="file-name">writing/SKILL.md</span>{% if state == 'drifted' %}<span class="drift-label">Missing</span>{% endif %}</li><li>debugging/SKILL.md</li></ul></li>
+    <li>plugins/<ul><li{% if state == 'drifted' %} class="missing-file"{% endif %}><span class="file-name">bridge.ts</span>{% if state == 'drifted' %}<span class="drift-label">Missing</span>{% endif %}</li></ul></li>
+    <li>opencode.json</li>
+  </ul>
+</div>
+{% endmacro %}
