@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="520" viewBox="0 0 640 520">
+  <rect x="66" y="30" width="508" height="440" rx="220" fill="#fdf4e3"/>
+  <g font-family="monospace" fill="#134686" text-anchor="middle">
+    <rect x="222" y="48" width="196" height="76" rx="6" fill="#fcfcfa" stroke="#134686" stroke-width="2"/>
+    <text x="320" y="78" font-size="18" font-weight="bold">source/</text><text x="320" y="103" font-size="12">one setup you keep</text>
+    <path d="M320 124v40M150 204v-40h340v40" fill="none" stroke="#134686" stroke-width="2"/>
+    <rect x="263" y="148" width="114" height="32" rx="4" fill="#feb21a"/>
+    <text x="320" y="169" font-size="14">ocp sync</text>
+  </g>
+  <g stroke="#134686" stroke-width="2" fill="#fcfcfa">
+    <rect x="30" y="205" width="270" height="184" rx="9"/>
+    <path d="M30 389H300l20 17q0 9-12 9H22q-12 0-12-9Z" fill="#dbe6f2"/>
+    <rect x="350" y="205" width="270" height="184" rx="9"/>
+    <path d="M468 389v26h34v-26M446 426h78" fill="#dbe6f2"/>
+  </g>
+  <g fill="#134686" font-family="monospace" font-size="13">
+    <path d="M31 240h268M351 240h268" stroke="#dee3e8"/>
+    <circle cx="48" cy="223" r="4" fill="#ed3f27"/><circle cx="62" cy="223" r="4" fill="#feb21a"/>
+    <circle cx="368" cy="223" r="4" fill="#ed3f27"/><circle cx="382" cy="223" r="4" fill="#feb21a"/>
+    <text x="49" y="269">$ ocp status</text><text x="49" y="299">source: ~/ocp-source</text><text x="49" y="322">profile: review</text><text x="49" y="354">agents · skills · plugins</text>
+    <text x="369" y="269">$ ocp status</text><text x="369" y="299">source: ~/ocp-source</text><text x="369" y="322">profile: review</text><text x="369" y="354">agents · skills · plugins</text>
+    <text x="165" y="453" text-anchor="middle" font-size="14">Your laptop</text><text x="485" y="453" text-anchor="middle" font-size="14">Your desktop</text>
+    <text x="320" y="501" text-anchor="middle" font-size="12">Same profile. Different machine.</text>
+  </g>
+</svg>

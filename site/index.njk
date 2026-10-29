@@ -1,41 +1,93 @@
 ---
 layout: base.njk
 navKey: home
-title: Keep your coding-agent configuration in sync across machines.
-description: Keep your coding-agent configuration in sync across machines. Install OCP, set up your source, and start using it. OpenCode first; more harnesses coming soon.
+title: Take your coding agent setup anywhere you work
+description: OCP keeps your agents, skills, plugins, and settings in one simple source and syncs them across every machine. Open source. OpenCode first, more harnesses coming.
 permalink: /index.html
 ---
 {% from 'example.njk' import example %}
+{% set installCommand = 'curl -fsSL https://raw.githubusercontent.com/nandorocker/ocp/main/install.sh | sh' %}
 <main id="main" class="home" tabindex="-1">
   <header class="hero">
-    <h1>Keep your coding-agent configuration in sync across machines.</h1>
-    <div class="hero-content">
-    <div class="hero-copy"><p class="hero-description">OCP keeps your agents, skills, plugins, and settings in sync across machines, without copying a trail of folders and files by hand. <span class="harness-note">Currently works with <a href="https://opencode.ai/">OpenCode</a></span>; other harnesses coming soon!</p><div class="hero-actions"><a class="button button-primary" href="#getting-started">Get started</a><a class="text-link" href="{{ '/docs/' | url }}">Read the docs</a></div></div>
-    <img class="hero-illustration" src="{{ '/ocp-schematic.png' | url }}" width="1536" height="1024" alt="OCP synchronizes one configuration of agents, skills, plugins, settings, and profiles across a laptop and desktop computers.">
+    <div class="hero-copy">
+      <h1>Take your coding agent setup anywhere you work.</h1>
+      <p class="hero-description">Forget the trail of folders and dotfiles. Keep your agents, skills, plugins, and settings in one simple source, and OCP generates the config and syncs it to every machine.</p>
+      {{ example('Install OCP · macOS / Linux', installCommand) }}
+      <div class="hero-actions"><a class="button button-primary" href="#getting-started">Install</a><a class="button button-secondary" href="{{ '/docs/' | url }}">Read the docs</a></div>
+      <p class="trust-line">Open source (AGPL-3.0) · Checksum-verified installer · OpenCode today, more harnesses coming</p>
     </div>
+    <figure class="hero-visual">
+      <img class="hero-illustration" src="{{ '/ocp-portability.svg' | url }}" width="640" height="520" alt="One OCP source generating the same agent setup on a laptop and a desktop.">
+      <figcaption>Dead or alive, your setup is coming with you.</figcaption>
+    </figure>
   </header>
 
-  <section id="welcome" class="home-section" aria-labelledby="what-title">
-    <h2 id="what-title">What does OCP do?</h2>
-    <p>Keep one shared source for your laptop, desktop, and remote dev machine. OCP generates the configuration your coding-agent harness uses, with profiles for different kinds of work and overrides for each machine.</p>
-    <p>It's useful if you work in something like <a href="https://t3.codes/">T3</a> and want the same agent instructions and skills wherever you run OpenCode. You can maintain the source yourself or <a href="{{ '/docs/' | url }}#agents">ask a coding agent to help</a>.</p>
+  <section id="welcome" class="home-section" aria-labelledby="problem-title">
+    <h2 id="problem-title">Your agent setup shouldn't live in a pile of folders.</h2>
+    <ul class="pain-points">
+      <li>You tweak an agent prompt on your desktop, and your laptop is still running the old one.</li>
+      <li>A new machine means an afternoon of hunting for dotfiles and half-remembered configs.</li>
+      <li>You want to try a different set of skills or plugins, but swapping them in and out by hand is a chore.</li>
+      <li>Your review agents and your build agents share one tangled global config.</li>
+    </ul>
+    <div class="comparison">
+      <div class="comparison-panel before"><h3>Without OCP</h3><div class="file-tree" aria-label="Scattered configuration copied by hand">desktop/<br>├─ .config/opencode/agents/<br>├─ experiments/skills/<br>└─ dotfiles/settings.json<br><span class="manual-copy">↓ copied by hand</span><br>laptop/<br>├─ agents/ <span class="drift-tag">drifted</span><br>└─ old-skills/ <span class="drift-tag">drifted</span></div></div>
+      <div class="comparison-panel after"><h3>With OCP</h3><div class="file-tree">source/<br>├─ ocp.yaml<br>├─ agents/ &amp; skills/<br>├─ plugins/<br>└─ profiles/<br><span class="apply-line">↓ ocp apply</span><br>laptop/ &nbsp; desktop/<br><span class="same-tag">same setup, generated locally</span></div></div>
+    </div>
+    <p class="differentiator">OpenCode gives you config files. OCP adds one source, profiles that inherit, and per-machine overrides.</p>
+  </section>
+
+  <section class="home-section" aria-labelledby="directives-title">
+    <h2 id="directives-title">OCP enforces three directives.</h2>
+    <div class="directives">
+      <article><span class="directive-symbol" aria-hidden="true">↳</span><h3>One source.</h3><p>Your agents, skills, plugins, and settings live in one place you can read and edit. Run <code>ocp apply</code> and OCP generates the config your harness uses.</p></article>
+      <article><span class="directive-symbol" aria-hidden="true">⇄</span><h3>Every machine.</h3><p>Put the source in Git and run <code>ocp sync</code>. Your laptop, desktop, and remote dev box stay on the same setup.</p></article>
+      <article><span class="directive-symbol" aria-hidden="true">⌘</span><h3>Any profile.</h3><p>Keep a profile for implementation, another for review. Switch the whole setup with <code>ocp use &lt;profile&gt;</code>.</p></article>
+    </div>
+  </section>
+
+  <section id="profiles" class="home-section feature-split" aria-labelledby="profiles-title">
+    <div><h2 id="profiles-title">One setup. Different jobs.</h2><p>A profile is a named configuration for a kind of work, like implementation, review, or experiments. Profiles inherit shared agents, skills, and settings, so you never duplicate them. Switch with one command and your whole setup follows.</p>{{ example('Switch profiles', 'ocp use review') }}<a class="text-link" href="{{ '/docs/' | url }}#profiles">Working with profiles →</a></div>
+    <div class="profile-diagram" role="img" aria-label="Shared base inherited by implementation, review, and experiments profiles. Review is active."><div class="diagram-node shared-base">Shared base<small>agents · skills · settings</small></div><div class="inheritance-lines" aria-hidden="true"></div><div class="profile-branches"><div class="diagram-node">implementation</div><div class="diagram-node active-profile">review<small>active profile</small></div><div class="diagram-node">experiments</div></div></div>
+  </section>
+
+  <section id="machines" class="home-section feature-split machines-section" aria-labelledby="machines-title">
+    <div class="machine-diagram" role="img" aria-label="One Git source repository shared by laptop, desktop, and remote dev box. The remote dev box has a machine override."><div class="diagram-node git-source">Git repo<small>your OCP source</small></div><div class="sync-label">↕ ocp sync</div><div class="machine-branches"><div class="diagram-node">Laptop</div><div class="diagram-node">Desktop</div><div class="diagram-node">Remote dev<small class="override-tag">machine override</small></div></div></div>
+    <div><h2 id="machines-title">Same setup, every machine.</h2><p>Keep one source for your laptop, desktop, and remote dev machine. Add per-machine overrides where you need them. When the source lives in Git, <code>ocp sync</code> brings changes between machines and renders your profiles.</p><aside class="callout"><code>ocp sync</code> can commit and push changes. Read how sync works before using it on a repository you share.</aside><a class="text-link" href="{{ '/docs/' | url }}#machines">Across machines →</a></div>
+  </section>
+
+  <section class="agent-highlight" aria-labelledby="agent-title">
+    <h2 id="agent-title">Let your coding agent set it up for you.</h2>
+    <p>Your source is just files. Point your coding agent at it and ask it to add a skill, restructure a profile, or write a machine override. OCP takes it from there.</p>
+    <a class="text-link" href="{{ '/docs/' | url }}#agents">Ask a coding agent to help →</a>
   </section>
 
   <section id="getting-started" class="home-section" aria-labelledby="start-title">
-    <h2 id="start-title">How do I get started?</h2>
-    <p>You'll need <a href="https://opencode.ai/docs/">OpenCode installed and authenticated</a>. Start with a local source; you can add Git sync when you're ready to use another machine.</p>
+    <h2 id="start-title">Up and running in three steps.</h2>
+    <p>You'll need <a href="https://opencode.ai/docs/">OpenCode installed and authenticated</a>. Start with a local source, and add Git sync when you're ready for a second machine.</p>
     <ol class="start-steps">
-      <li><h3>Install OCP</h3><p>On macOS or Linux, run:</p>{{ example('Install OCP', 'curl -fsSL https://raw.githubusercontent.com/nandorocker/ocp/main/install.sh | sh') }}<p class="small">The installer checks the release checksum and puts OCP in <code>~/.local/bin</code>. See <a href="{{ '/install/' | url }}">installation instructions</a> for OS details and <code>PATH</code> help, or <a href="https://github.com/nandorocker/ocp/blob/main/install.sh">read the installer</a> first.</p></li>
-      <li><h3>Set up your source</h3><p>Keep a backup of your existing OpenCode configuration before setup. OCP preserves it for <code>ocp reset</code>, then manages the global configuration path.</p>{{ example('Set up OCP', '~/.local/bin/ocp setup') }}<p>Follow the prompts to choose a new source or bring an existing setup. Your source is the directory of files you'll edit and keep. A profile is a named configuration for a kind of work, such as implementation or review.</p></li>
-      <li><h3>Check the result and start a session</h3>{{ example('Start using OCP', '~/.local/bin/ocp status\nopencode') }}<p>Setup generates and activates a profile. Status shows which source and profile you're using; <code>opencode</code> starts the session. If you'd rather build your first profiles by hand, follow the <a href="{{ '/quick-start/' | url }}">quick start</a>.</p></li>
+      <li><h3>Install OCP</h3>{{ example('Install OCP · macOS / Linux', installCommand) }}<p class="small">The installer checks the release checksum and puts OCP in <code>~/.local/bin</code>. <a href="{{ '/install/' | url }}">Installation details and PATH help</a> · <a href="https://github.com/nandorocker/ocp/blob/main/install.sh">Read the installer first</a></p></li>
+      <li><h3>Set up your source</h3>{{ example('Set up OCP', '~/.local/bin/ocp setup') }}<aside class="callout backup-warning"><strong>Back up first.</strong> Keep a copy of your existing OpenCode configuration before setup. OCP preserves it for <code>ocp reset</code>, then manages the global configuration path.</aside><p>Follow the prompts to start a new source or bring an existing setup. Your source is the directory of files you'll edit and keep.</p></li>
+      <li><h3>Check the result and start a session</h3>{{ example('Start using OCP', '~/.local/bin/ocp status\nopencode') }}<p>Setup generates and activates a profile. <code>ocp status</code> shows which source and profile you're using, and <code>opencode</code> starts your session. Prefer to build your profiles by hand? Follow the <a href="{{ '/quick-start/' | url }}">quick start</a>.</p></li>
     </ol>
   </section>
 
-  <section class="home-section" aria-labelledby="source-title">
-    <h2 id="source-title">One single source of truth for all your machines</h2>
-    <p>Edit your source, then run <code>ocp apply</code> to generate the configuration. Profiles can inherit shared agents, skills, and settings without duplicating them. Use <code>ocp use &lt;profile&gt;</code> to switch profiles.</p>
-    <p>When you put the source in Git, <code>ocp sync</code> brings changes between machines and renders your profiles. It can commit and push changes, so <a href="{{ '/docs/' | url }}#machines">read how sync works</a> before using it on a repository you share.</p>
-    <p id="questions" class="closing">I'm <a href="https://nan.do">Nando Rossi</a>, the developer behind OCP. If you get stuck or have an idea, <a href="https://github.com/nandorocker/ocp/issues">open an issue</a>. I'd like to hear how it fits your setup.</p>
+  <section class="home-section faq" aria-labelledby="faq-title">
+    <h2 id="faq-title">A few things before you comply.</h2>
+    <details><summary>Does it overwrite my existing config?</summary><p>OCP preserves your existing OpenCode configuration, then manages the global configuration path. <code>ocp reset</code> detaches OCP and restores that original when available, leaving your source untouched. Still, keep your own backup before running setup.</p></details>
+    <details><summary>Do I need Git?</summary><p>No. Start with a local source. Add Git sync when you want to use another machine.</p></details>
+    <details><summary>Which coding agents does it work with?</summary><p>OpenCode today. Other harnesses are coming.</p></details>
+    <details><summary>Can I read the installer before running it?</summary><p>Yes. It's <a href="https://github.com/nandorocker/ocp/blob/main/install.sh">linked here</a>, and it verifies the release checksum when it runs.</p></details>
+    <details><summary>What does <code>ocp sync</code> do to my repository?</summary><p>It brings changes between machines and renders your profiles. It can also commit and push, so <a href="{{ '/docs/' | url }}#machines">read how sync works</a> before using it on a repository you share.</p></details>
+    <details><summary>What operating systems are supported?</summary><p>macOS and Linux. Native Windows isn't supported yet. See the <a href="{{ '/install/' | url }}">installation page</a> for details.</p></details>
+    <details><summary>Is it free?</summary><p>Yes. OCP is open source under AGPL-3.0.</p></details>
   </section>
-  <div class="legacy-links" aria-label="Topics from the previous site"><a id="profiles" href="{{ '/docs/' | url }}#profiles">Working with profiles</a><a id="machines" href="{{ '/docs/' | url }}#machines">Across machines</a><a id="commands" href="{{ '/docs/' | url }}#commands">Command reference</a></div>
+
+  <section class="final-cta" aria-labelledby="final-title">
+    <h2 id="final-title">Your move, creep.</h2><p>Set it up once and take it anywhere.</p>
+    {{ example('Install OCP', installCommand) }}
+    <div class="hero-actions"><a class="button button-secondary" href="{{ '/docs/' | url }}">Read the docs</a><a class="text-link" href="https://github.com/nandorocker/ocp">Star on GitHub</a></div>
+  </section>
+  <p id="questions" class="closing">I'm <a href="https://nan.do">Nando Rossi</a>, the developer behind OCP. If you get stuck or have an idea, <a href="https://github.com/nandorocker/ocp/issues">open an issue</a>. I'd like to hear how it fits your setup.</p>
+  <div class="legacy-links" aria-label="Topics from the previous site"><a id="commands" href="{{ '/docs/' | url }}#commands">Command reference</a></div>
 </main>

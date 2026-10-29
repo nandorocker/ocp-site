@@ -19,7 +19,7 @@ async function github(path) {
 
 // Keep the repository link and descriptive labels if GitHub is unavailable.
 // Metadata is public, optional, and never blocks the rest of the handbook.
-void Promise.allSettled([
+if (document.querySelector('[data-repository]')) void Promise.allSettled([
   github('').then((repository) => {
     for (const [key, field, label] of [
       ['stars', 'stargazers_count', 'stars'],

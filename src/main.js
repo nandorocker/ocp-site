@@ -3,29 +3,38 @@ import './repository.js';
 const menuToggle = document.querySelector('.menu-toggle');
 const sidebar = document.querySelector('.sidebar');
 document.documentElement.classList.add('js');
-menuToggle.hidden = false;
+if (menuToggle) menuToggle.hidden = false;
 
 function closeMenu() {
-  menuToggle.setAttribute('aria-expanded', 'false');
-  sidebar.classList.remove('is-open');
+  menuToggle?.setAttribute('aria-expanded', 'false');
+  sidebar?.classList.remove('is-open');
 }
-menuToggle.addEventListener('click', () => {
+menuToggle?.addEventListener('click', () => {
   const open = menuToggle.getAttribute('aria-expanded') !== 'true';
   menuToggle.setAttribute('aria-expanded', String(open));
   sidebar.classList.toggle('is-open', open);
 });
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && sidebar.classList.contains('is-open')) {
+  if (event.key === 'Escape' && sidebar?.classList.contains('is-open')) {
     closeMenu();
     menuToggle.focus();
   }
 });
-sidebar.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+sidebar?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
 window.addEventListener('resize', () => {
   if (window.innerWidth > 900) closeMenu();
 });
 
 const copyStatus = document.querySelector('#copy-status');
+const copyToast = document.querySelector('#copy-toast');
+let statusTimeout;
+function showCopyStatus(message) {
+  window.clearTimeout(statusTimeout);
+  copyStatus.textContent = message;
+  copyToast.textContent = message;
+  copyToast.hidden = false;
+  statusTimeout = window.setTimeout(() => { copyToast.hidden = true; copyStatus.textContent = ''; }, 5000);
+}
 document.querySelectorAll('.copy-button').forEach((button) => {
   const container = button.closest('.code-block');
   const code = container.querySelector('pre code');
@@ -35,7 +44,7 @@ document.querySelectorAll('.copy-button').forEach((button) => {
     try {
       await navigator.clipboard.writeText(code.textContent);
       button.textContent = 'Copied';
-      copyStatus.textContent = 'Code copied to clipboard.';
+      showCopyStatus('Thank you for your configuration.');
     } catch {
       const range = document.createRange();
       range.selectNodeContents(code);
@@ -43,7 +52,7 @@ document.querySelectorAll('.copy-button').forEach((button) => {
       selection.removeAllRanges();
       selection.addRange(range);
       button.textContent = 'Select';
-      copyStatus.textContent = 'Clipboard unavailable. Code selected; copy it with your keyboard or device menu.';
+      showCopyStatus('Clipboard unavailable. Code selected; copy it with your keyboard or device menu.');
     }
     window.setTimeout(() => { button.textContent = 'Copy'; }, 2200);
   });
