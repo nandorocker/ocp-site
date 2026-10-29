@@ -84,9 +84,9 @@ test('landing page follows the copy deck and promotes installation', async ({ pa
   await expect(page.locator('.hero').getByRole('link', { name: 'Install', exact: true })).toHaveAttribute('href', '#getting-started');
   await expect(page.locator('.hero').getByRole('link', { name: 'Read the docs' })).toHaveAttribute('href', '/docs/');
   await expect(page.locator('.button-primary [aria-hidden="true"]')).toHaveText(['→', '→']);
-  await expect(page.locator('.button-secondary')).toHaveText(['Read the docs', 'Read the docs']);
-  await expect(page.locator('main pre')).toHaveCount(6);
-  await expect(page.locator('main .copy-button')).toHaveCount(6);
+  await expect(page.locator('.button-secondary')).toHaveText(['Read the docs']);
+  await expect(page.locator('main pre')).toHaveCount(5);
+  await expect(page.locator('main .copy-button')).toHaveCount(5);
   await expect(page.locator('.comparison-panel')).toHaveCount(2);
   await expect(page.locator('.before .config-machine')).toHaveCount(2);
   await expect(page.locator('.before .drift-label')).toHaveText(['Different', 'Different', 'Missing', 'Missing']);

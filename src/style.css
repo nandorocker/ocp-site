@@ -204,10 +204,6 @@ pre { margin: 0; padding: 16px; overflow-x: auto; font-size: .8rem; line-height:
 .faq details { border-bottom: 1px solid var(--line); }
 .faq summary { cursor: pointer; font-weight: 750; padding: 22px 4px; color: var(--ink); font-size: .9rem; }
 .faq details p { padding: 0 4px 12px; font-size: .85rem; }
-.final-cta { padding: 80px 0 48px; text-align: center; }
-.home .final-cta h2, .home .final-cta p { margin-left: auto; margin-right: auto; }
-.final-cta .code-block { text-align: left; max-width: 920px; margin: 28px auto; }
-.final-cta .hero-actions { justify-content: center; }
 .home .closing { max-width: none; margin: 0; font-size: .8rem; }
 .footer-links { display: flex; flex-wrap: wrap; gap: 12px 24px; flex-basis: 100%; }
 .copy-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 20; max-width: calc(100vw - 32px); width: max-content; padding: 14px 20px; border: 1px solid var(--blue); background: var(--paper); color: var(--ink); box-shadow: 0 4px 20px #13468620; font-size: .8rem; }
