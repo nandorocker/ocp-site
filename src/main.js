@@ -1,28 +1,52 @@
-import './repository.js';
-
-const menuToggle = document.querySelector('.menu-toggle');
-const sidebar = document.querySelector('.sidebar');
-document.documentElement.classList.add('js');
-if (menuToggle) menuToggle.hidden = false;
-
-function closeMenu() {
-  menuToggle?.setAttribute('aria-expanded', 'false');
-  sidebar?.classList.remove('is-open');
+// Keep old installation bookmarks useful, including OS-specific anchors.
+const installRedirect = document.querySelector('[data-install-redirect]');
+if (installRedirect) {
+  const target = new URL(installRedirect.href);
+  if (['#macos', '#linux'].includes(window.location.hash)) target.hash = window.location.hash;
+  window.location.replace(target.href);
 }
-menuToggle?.addEventListener('click', () => {
-  const open = menuToggle.getAttribute('aria-expanded') !== 'true';
-  menuToggle.setAttribute('aria-expanded', String(open));
-  sidebar.classList.toggle('is-open', open);
-});
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && sidebar?.classList.contains('is-open')) {
-    closeMenu();
-    menuToggle.focus();
+
+document.querySelectorAll('.install-tabs').forEach((container) => {
+  const tablist = container.querySelector('.install-tablist');
+  const tabs = [...tablist.querySelectorAll('button')];
+  const panels = tabs.map((tab) => document.getElementById(tab.dataset.panel));
+
+  function activate(index) {
+    tabs.forEach((tab, position) => {
+      const selected = position === index;
+      tab.setAttribute('aria-selected', String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+      panels[position].hidden = !selected;
+    });
   }
-});
-sidebar?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
-window.addEventListener('resize', () => {
-  if (window.innerWidth > 900) closeMenu();
+  function activateFromHash() {
+    const index = panels.findIndex((panel) => `#${panel.id}` === window.location.hash);
+    if (index >= 0) activate(index);
+  }
+  tablist.setAttribute('role', 'tablist');
+  tabs.forEach((tab, index) => {
+    tab.setAttribute('role', 'tab');
+    tab.setAttribute('aria-controls', panels[index].id);
+    panels[index].setAttribute('role', 'tabpanel');
+    panels[index].setAttribute('aria-labelledby', tab.id);
+    panels[index].tabIndex = 0;
+    tab.addEventListener('click', () => activate(index));
+    tab.addEventListener('keydown', (event) => {
+      let next;
+      if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+      else if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = tabs.length - 1;
+      else return;
+      event.preventDefault();
+      activate(next);
+      tabs[next].focus();
+    });
+  });
+  activate(0);
+  activateFromHash();
+  tablist.hidden = false;
+  window.addEventListener('hashchange', activateFromHash);
 });
 
 const copyStatus = document.querySelector('#copy-status');
@@ -38,12 +62,16 @@ function showCopyStatus(message) {
 document.querySelectorAll('.copy-button').forEach((button) => {
   const container = button.closest('.code-block');
   const code = container.querySelector('pre code');
-  button.setAttribute('aria-label', `Copy ${container.querySelector('.code-heading span').textContent} example`);
+  const label = `Copy ${container.querySelector('.code-heading span').textContent} example`;
+  button.setAttribute('aria-label', label);
+  button.title = 'Copy';
   button.hidden = false;
+  let buttonTimeout;
   button.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(code.textContent);
-      button.textContent = 'Copied';
+      button.dataset.copyState = 'copied';
+      button.title = 'Copied';
       showCopyStatus('Thank you for your configuration.');
     } catch {
       const range = document.createRange();
@@ -51,10 +79,12 @@ document.querySelectorAll('.copy-button').forEach((button) => {
       const selection = window.getSelection();
       selection.removeAllRanges();
       selection.addRange(range);
-      button.textContent = 'Select';
+      button.dataset.copyState = 'selected';
+      button.title = 'Code selected';
       showCopyStatus('Clipboard unavailable. Code selected; copy it with your keyboard or device menu.');
     }
-    window.setTimeout(() => { button.textContent = 'Copy'; }, 2200);
+    window.clearTimeout(buttonTimeout);
+    buttonTimeout = window.setTimeout(() => { delete button.dataset.copyState; button.title = 'Copy'; }, 2200);
   });
 });
 

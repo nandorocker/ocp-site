@@ -1,23 +1,64 @@
 ---
 layout: page.njk
-title: How do I start using OCP?
-description: Create a shared configuration, make two profiles, and learn what setup, apply, and use do.
+title: Getting started with OCP
+description: Install OCP on macOS or Linux, create a shared source, and use your first OpenCode profiles.
 navKey: quick-start
 permalink: /quick-start/index.html
 ---
-Let's make two profiles that share a setting, then use one in OpenCode. Start with [OCP installed](../install/). You can do this locally; you won't need Git until you want to sync with another machine.
+Setup is easy: import your existing config or start fresh. Switching profiles is a breeze, and you can sync across machines with one command.
 
-## What am I creating?
+<h2 id="install">Install OCP</h2>
 
-Your **source** is a directory of files you edit and keep. A **profile** describes a configuration for a particular kind of work. OCP reads the source and **renders** (generates) the configuration files your harness uses.
+Choose your system, then run the installer in your terminal.
 
-A **harness** is the application that runs your coding session and connects to models and tools. OpenCode is the harness supported today. OCP prepares its configuration; it doesn't replace the coding agent or its provider login.
+<div class="install-tabs">
+<div class="install-tablist" aria-label="Operating system" hidden>
+<button type="button" id="tab-macos" data-panel="macos">macOS</button>
+<button type="button" id="tab-linux" data-panel="linux">Linux</button>
+</div>
 
-Edit your source when you want to change something. Generated files belong to OCP, so changes made there can block the next render instead of flowing back into your source.
+<div class="install-panel" id="macos">
+
+<h3>macOS</h3>
+
+Works on Apple silicon and Intel Macs.
+
+```sh Install OCP on macOS
+curl -fsSL https://raw.githubusercontent.com/nandorocker/ocp/main/install.sh | sh
+```
+
+If `ocp` isn't found, add the install directory to your zsh `PATH`, then open a new terminal:
+
+```sh ~/.zshrc
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+</div>
+
+<div class="install-panel" id="linux">
+
+<h3>Linux</h3>
+
+Works on x86-64 and ARM64. You'll need `curl`, `tar`, and a checksum tool (`sha256sum`, `shasum`, or `openssl`).
+
+```sh Install OCP on Linux
+curl -fsSL https://raw.githubusercontent.com/nandorocker/ocp/main/install.sh | sh
+```
+
+If `ocp` isn't found, add this to `~/.bashrc` (or `~/.zshrc` for zsh), then open a new terminal:
+
+```sh Shell profile
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+</div>
+</div>
+
+The installer verifies the release checksum and installs to `~/.local/bin`. Rerun it to update. [Read the installer](https://github.com/nandorocker/ocp/blob/main/install.sh) or [download a release](https://github.com/nandorocker/ocp/releases). Native Windows isn't supported yet.
 
 ## Make a source directory
 
-Choose a directory you aren't already using for another configuration. This example uses `~/ocp-config`:
+Keep shared settings and profiles in a source directory. Edit these files, not the generated config. Choose a fresh directory, such as `~/ocp-config`:
 
 ```sh
 mkdir -p ~/ocp-config/profiles

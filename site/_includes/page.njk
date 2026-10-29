@@ -1,13 +1,13 @@
 ---
 layout: base.njk
 ---
-{% set headings = content | toc %}
-<div class="document-layout">
+{% if navKey == 'docs' %}{% set headings = content | toc %}{% endif %}
+<div class="document-layout{% if navKey == 'docs' %} has-toc{% endif %}">
   <main id="main" class="document" tabindex="-1">
-    <header class="document-header"><a class="back-to-docs" href="{{ '/docs/' | url }}">Documentation</a><h1>{{ title }}</h1></header>
-    {% if headings.length %}<details class="mobile-toc"><summary>On this page</summary><nav aria-label="On this page"><ol>{% for heading in headings %}<li><a href="#{{ heading.id }}">{{ heading.title }}</a></li>{% endfor %}</ol></nav></details>{% endif %}
+    <header class="document-header">{% if navKey == 'quick-start' %}<span class="back-to-docs">Quick start</span>{% else %}<a class="back-to-docs" href="{{ '/docs/' | url }}">Documentation</a>{% endif %}<h1>{{ title }}</h1></header>
+    {% if headings.length %}<nav class="mobile-toc" aria-label="On this page"><ol>{% for heading in headings %}<li><a href="#{{ heading.id }}">{{ heading.title }}</a></li>{% endfor %}</ol></nav>{% endif %}
     <div class="prose">{{ content | safe }}</div>
     <div class="document-end"><p>Something unclear? <a href="https://github.com/nandorocker/ocp/issues">Ask a question or suggest an improvement</a>.</p><a href="{{ '/docs/' | url }}">Browse the documentation</a></div>
   </main>
-  {% if headings.length %}<nav class="page-toc" aria-label="On this page"><p>On this page</p><ol>{% for heading in headings %}<li><a href="#{{ heading.id }}">{{ heading.title }}</a></li>{% endfor %}</ol></nav>{% endif %}
+  {% if headings.length %}<nav class="page-toc" aria-label="On this page"><ol>{% for heading in headings %}<li><a href="#{{ heading.id }}">{{ heading.title }}</a></li>{% endfor %}</ol></nav>{% endif %}
 </div>

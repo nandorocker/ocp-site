@@ -5,7 +5,7 @@ description: Understand profiles, shared components, multiple machines, agent-as
 navKey: docs
 permalink: /docs/index.html
 ---
-OCP reads a source directory you maintain and generates configuration for your coding-agent harness. OpenCode is supported today; other harnesses are coming soon. If you're starting from scratch, [install OCP](../install/) and follow the [quick start](../quick-start/).
+OCP reads a source directory you maintain and generates configuration for your coding-agent harness. OpenCode is supported today; other harnesses are coming soon. If you're starting from scratch, [install OCP and follow the quick start](../quick-start/).
 
 <h2 id="profiles">Profiles</h2>
 
@@ -169,7 +169,7 @@ The root configuration accepts `version`, `config`, `instructions`, `agents`, `s
 
 <h2 id="help">Troubleshooting</h2>
 
-- **Command not found:** check `~/.local/bin/ocp version` and the `PATH` instructions on the [install page](../install/).
+- **Command not found:** check `~/.local/bin/ocp version` and the [installation and PATH instructions](../quick-start/#install).
 - **Already set up:** use apply or sync for changes. Don't delete state to rerun setup; it records the preserved configuration.
 - **Generated files have drifted:** back up edited output, move useful changes into source, and review before allowing replacement.
 - **Missing profile or invalid YAML:** check indentation, names, `extends`, host restrictions, and source-relative paths. Don't mix inline and file profiles.

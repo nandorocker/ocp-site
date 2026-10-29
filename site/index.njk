@@ -13,7 +13,7 @@ permalink: /index.html
       <h1>Take your coding agent setup anywhere you work.</h1>
       <p class="hero-description">Forget the trail of folders and dotfiles. Keep your agents, skills, plugins, and settings in one simple source, and OCP generates the config and syncs it to every machine.</p>
       {{ example('Install OCP · macOS / Linux', installCommand) }}
-      <div class="hero-actions"><a class="button button-primary" href="#getting-started">Install</a><a class="button button-secondary" href="{{ '/docs/' | url }}">Read the docs</a></div>
+      <div class="hero-actions"><a class="button button-primary" href="#getting-started">Install <span aria-hidden="true">→</span></a><a class="button button-secondary" href="{{ '/docs/' | url }}">Read the docs</a></div>
       <p class="trust-line">Open source (AGPL-3.0) · Checksum-verified installer · OpenCode today, more harnesses coming</p>
     </div>
     <figure class="hero-visual">
@@ -64,9 +64,9 @@ permalink: /index.html
 
   <section id="getting-started" class="home-section" aria-labelledby="start-title">
     <h2 id="start-title">Up and running in three steps.</h2>
-    <p>You'll need <a href="https://opencode.ai/docs/">OpenCode installed and authenticated</a>. Start with a local source, and add Git sync when you're ready for a second machine.</p>
+    <p>Start with a local source, and add Git sync when you're ready for a second machine.</p>
     <ol class="start-steps">
-      <li><h3>Install OCP</h3>{{ example('Install OCP · macOS / Linux', installCommand) }}<p class="small">The installer checks the release checksum and puts OCP in <code>~/.local/bin</code>. <a href="{{ '/install/' | url }}">Installation details and PATH help</a> · <a href="https://github.com/nandorocker/ocp/blob/main/install.sh">Read the installer first</a></p></li>
+      <li><h3>Install OCP</h3>{{ example('Install OCP · macOS / Linux', installCommand) }}<p class="small">The installer checks the release checksum and puts OCP in <code>~/.local/bin</code>. <a href="{{ '/quick-start/' | url }}#install">Installation details and PATH help</a> · <a href="https://github.com/nandorocker/ocp/blob/main/install.sh">Read the installer first</a></p></li>
       <li><h3>Set up your source</h3>{{ example('Set up OCP', '~/.local/bin/ocp setup') }}<aside class="callout backup-warning"><strong>Back up first.</strong> Keep a copy of your existing OpenCode configuration before setup. OCP preserves it for <code>ocp reset</code>, then manages the global configuration path.</aside><p>Follow the prompts to start a new source or bring an existing setup. Your source is the directory of files you'll edit and keep.</p></li>
       <li><h3>Check the result and start a session</h3>{{ example('Start using OCP', '~/.local/bin/ocp status\nopencode') }}<p>Setup generates and activates a profile. <code>ocp status</code> shows which source and profile you're using, and <code>opencode</code> starts your session. Prefer to build your profiles by hand? Follow the <a href="{{ '/quick-start/' | url }}">quick start</a>.</p></li>
     </ol>
@@ -79,7 +79,7 @@ permalink: /index.html
     <details><summary>Which coding agents does it work with?</summary><p>OpenCode today. Other harnesses are coming.</p></details>
     <details><summary>Can I read the installer before running it?</summary><p>Yes. It's <a href="https://github.com/nandorocker/ocp/blob/main/install.sh">linked here</a>, and it verifies the release checksum when it runs.</p></details>
     <details><summary>What does <code>ocp sync</code> do to my repository?</summary><p>It brings changes between machines and renders your profiles. It can also commit and push, so <a href="{{ '/docs/' | url }}#machines">read how sync works</a> before using it on a repository you share.</p></details>
-    <details><summary>What operating systems are supported?</summary><p>macOS and Linux. Native Windows isn't supported yet. See the <a href="{{ '/install/' | url }}">installation page</a> for details.</p></details>
+    <details><summary>What operating systems are supported?</summary><p>macOS and Linux. Native Windows isn't supported yet. See the <a href="{{ '/quick-start/' | url }}#install">installation section</a> for details.</p></details>
     <details><summary>Is it free?</summary><p>Yes. OCP is open source under AGPL-3.0.</p></details>
   </section>
 

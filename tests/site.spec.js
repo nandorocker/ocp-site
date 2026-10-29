@@ -1,11 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const routes = ['/', '/docs/', '/install/', '/quick-start/'];
-test.beforeEach(async ({ page }) => {
-  await page.route('https://api.github.com/repos/nandorocker/ocp', (route) => route.fulfill({ json: { stargazers_count: 22100, forks_count: 698 } }));
-  await page.route('https://api.github.com/repos/nandorocker/ocp/releases/latest', (route) => route.fulfill({ json: { tag_name: 'v0.1.2' } }));
-});
+const routes = ['/', '/docs/', '/quick-start/'];
 
 for (const route of routes) {
   test(`loads ${route} directly, including in the production subpath`, async ({ page }) => {
@@ -31,14 +27,43 @@ for (const route of routes) {
       const ids = await page.locator('[id]').evaluateAll((elements) => elements.map((element) => element.id));
       expect(new Set(ids).size).toBe(ids.length);
        if (route !== '/') {
-        const active = page.locator('.sidebar [aria-current="page"]');
+         const active = page.locator('.landing-nav [aria-current="page"]');
         await expect(active).toHaveCount(1);
         await expect(active).toHaveAttribute('href', `${base.includes('4175') ? '/ocp-site' : ''}${route}`);
-        await expect(active).toHaveCSS('font-weight', '800');
-        await expect(active).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-      }
+         await expect(active).toHaveCSS('text-decoration-line', 'underline');
+       }
+       await expect(page.locator('.sidebar')).toHaveCount(0);
+       await expect(page.locator('.page-toc, .mobile-toc')).toHaveCount(route === '/docs/' ? 2 : 0);
     }
     expect(failures).toEqual([]);
+  });
+}
+
+for (const width of [390, 1440]) {
+  test(`documentation keeps its section navigation without JavaScript at ${width}px`, async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width, height: 900 } });
+    try {
+      const page = await context.newPage();
+      for (const base of ['http://127.0.0.1:5175', 'http://127.0.0.1:4175/ocp-site']) {
+        await page.goto(`${base}/docs/`);
+        const toc = page.locator(width < 1280 ? '.mobile-toc' : '.page-toc');
+        await expect(toc).toBeVisible();
+        if (width >= 1280) {
+          await expect(toc).toHaveCSS('position', 'sticky');
+          await expect(toc).toHaveCSS('top', '100px');
+        }
+        const headings = await page.locator('.prose h2[id]').evaluateAll((items) => items.map((item) => item.id));
+        await expect(toc.locator('p, summary')).toHaveCount(0);
+        expect(await toc.locator('a').evaluateAll((items) => items.map((item) => item.hash.slice(1)))).toEqual(headings);
+        await toc.getByRole('link', { name: 'Multi-machine setup', exact: true }).click();
+        await expect(page).toHaveURL(`${base}/docs/#machines`);
+        const heading = await page.locator('#machines').boundingBox();
+        const navbar = await page.locator('.landing-nav').boundingBox();
+        expect(heading.y).toBeGreaterThanOrEqual(navbar.y + navbar.height);
+      }
+    } finally {
+      await context.close();
+    }
   });
 }
 
@@ -54,6 +79,8 @@ test('landing page follows the copy deck and promotes installation', async ({ pa
   await expect(page.locator('.landing-nav')).toHaveCSS('position', 'sticky');
   await expect(page.locator('.hero').getByRole('link', { name: 'Install', exact: true })).toHaveAttribute('href', '#getting-started');
   await expect(page.locator('.hero').getByRole('link', { name: 'Read the docs' })).toHaveAttribute('href', '/docs/');
+  await expect(page.locator('.button-primary [aria-hidden="true"]')).toHaveText(['→', '→']);
+  await expect(page.locator('.button-secondary')).toHaveText(['Read the docs', 'Read the docs']);
   await expect(page.locator('main pre')).toHaveCount(6);
   await expect(page.locator('main .copy-button')).toHaveCount(6);
   await expect(page.locator('.comparison-panel')).toHaveCount(2);
@@ -140,11 +167,18 @@ test('unknown pages do not silently render the homepage', async ({ request }) =>
 });
 
 test('installation has visible OS sections and quick start explains the workflow', async ({ page }) => {
-  await page.goto('/install/');
+  await page.goto('/quick-start/');
+  await expect(page.locator('.document-header .back-to-docs')).toHaveText('Quick start');
+  await expect(page.locator('h1')).toHaveText('Getting started with OCP');
+  await expect(page.locator('.document-header')).not.toContainText('Documentation');
+  await expect(page.getByRole('heading', { name: 'What am I creating?' })).toHaveCount(0);
+  await expect(page.locator('.prose > p').first()).toHaveText('Setup is easy: import your existing config or start fresh. Switching profiles is a breeze, and you can sync across machines with one command.');
+  await expect(page.locator('.prose > p').first().locator('code')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'macOS', exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: 'Linux', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Linux', exact: true })).toBeVisible();
   await expect(page.locator('.prose')).toContainText("Native Windows isn't supported yet.");
-  await page.goto('/quick-start/');
+  await expect(page.locator('.prose h2').first()).toHaveText('Install OCP');
   for (const concept of ['source', 'profile', 'renders', 'Indentation', 'placeholder', 'preserves', 'apply', 'use focused']) {
     await expect(page.locator('.prose')).toContainText(concept);
   }
@@ -161,7 +195,14 @@ test('documentation explains T3 fit and agent approval boundaries', async ({ pag
 test('author credits and coffee buttons keep their exact styling and destinations', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('meta[name="author"]')).toHaveAttribute('content', 'Nando Rossi');
-   await expect(page.locator('.footer-credit').getByRole('link', { name: 'Nando Rossi' })).toHaveAttribute('href', 'https://nan.do');
+  await expect(page.locator('.footer-credit').getByRole('link', { name: 'Nando Rossi' })).toHaveAttribute('href', 'https://nan.do');
+  await expect(page.locator('.footer-credit')).toContainText('Made by Nando Rossi • License AGPL-3.0');
+  await expect(page.locator('.footer-credit')).toContainText('© 2026');
+  await expect(page.locator('.footer-credit br')).toHaveCount(0);
+  await expect(page.locator('.page-footer')).toHaveCSS('background-color', 'rgb(37, 40, 45)');
+  await expect(page.locator('.footer-credit')).toHaveCSS('color', 'rgb(237, 240, 243)');
+  await expect(page.locator('.footer-credit').getByRole('link', { name: 'AGPL-3.0', exact: true })).toHaveAttribute('href', 'https://github.com/nandorocker/ocp/blob/main/LICENSE');
+  await expect(page.locator('.footer-support')).toContainText('Find this useful? Support me!');
   await expect(page.locator('.closing')).toContainText('Nando Rossi, the developer behind OCP.');
   const coffees = page.getByRole('link', { name: 'Buy me a coffee', exact: true });
    await expect(coffees).toHaveCount(1);
@@ -172,35 +213,55 @@ test('author credits and coffee buttons keep their exact styling and destination
     await expect(coffee).toHaveCSS('background-color', 'rgb(254, 178, 26)');
     await expect(coffee).toHaveCSS('color', 'rgb(26, 18, 8)');
     await expect(coffee).toHaveCSS('border-radius', '8px');
+    await expect(coffee).toHaveCSS('min-height', '48px');
   }
   await coffees.last().hover();
   await expect(coffees.last()).toHaveCSS('animation-name', 'none');
 });
 
-test('repository summary displays real response values and leaves fallbacks on failure', async ({ page }) => {
-  await page.goto('/docs/');
-  const summary = page.getByRole('link', { name: 'OCP on GitHub' });
-  await expect(summary).toHaveAttribute('href', 'https://github.com/nandorocker/ocp');
-  await expect(summary.locator('[data-repository="release"]')).toHaveText('v0.1.2');
-  await expect(summary.locator('[data-repository="stars"]')).toHaveText('22.1K stars');
-  await expect(summary.locator('[data-repository="forks"]')).toHaveText('698 forks');
-  await page.route('https://api.github.com/repos/nandorocker/ocp', (route) => route.fulfill({ status: 403, json: {} }));
-  await page.route('https://api.github.com/repos/nandorocker/ocp/releases/latest', (route) => route.abort());
-  await page.reload();
-  await expect(summary.locator('[data-repository="release"]')).toHaveText('Releases');
-  await expect(summary.locator('[data-repository="stars"]')).toHaveText('Stars');
-   await page.locator('.sidebar').getByRole('link', { name: 'Quick start', exact: true }).click();
-  await expect(page).toHaveURL(/\/quick-start\/$/);
-  await expect(page.locator('.copy-button').first()).toBeVisible();
+test('OS tabs support keyboard navigation and deep links', async ({ page }) => {
+  await page.goto('/quick-start/#linux');
+  const mac = page.getByRole('tab', { name: 'macOS', exact: true });
+  const linux = page.getByRole('tab', { name: 'Linux', exact: true });
+  await expect(linux).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#linux')).toBeVisible();
+  await expect(page.locator('#macos')).toBeHidden();
+  await linux.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(mac).toBeFocused();
+  await expect(mac).toHaveAttribute('aria-selected', 'true');
+  await page.keyboard.press('End');
+  await expect(linux).toBeFocused();
+  await page.keyboard.press('Home');
+  await expect(mac).toBeFocused();
+  await page.keyboard.press('ArrowLeft');
+  await expect(linux).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#linux')).toBeFocused();
+  await page.evaluate(() => { window.location.hash = 'macos'; });
+  await expect(mac).toHaveAttribute('aria-selected', 'true');
 });
 
-test('repository metadata accepts zero but rejects malformed values', async ({ page }) => {
-  await page.route('https://api.github.com/repos/nandorocker/ocp', (route) => route.fulfill({ json: { stargazers_count: 0, forks_count: -1 } }));
-  await page.route('https://api.github.com/repos/nandorocker/ocp/releases/latest', (route) => route.fulfill({ json: { tag_name: 123 } }));
-   await page.goto('/docs/');
-   await expect(page.locator('[data-repository="stars"]')).toHaveText('0 stars');
-  await expect(page.locator('[data-repository="forks"]')).toHaveText('Forks');
-  await expect(page.locator('[data-repository="release"]')).toHaveText('Releases');
+for (const javaScriptEnabled of [true, false]) {
+  test(`old install links redirect with JavaScript ${javaScriptEnabled}`, async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled });
+    try {
+      const page = await context.newPage();
+      for (const base of ['http://127.0.0.1:5175', 'http://127.0.0.1:4175/ocp-site']) {
+        await page.goto(`${base}/install/`);
+        await expect(page).toHaveURL(`${base}/quick-start/#install`);
+        await expect(page.locator('#install')).toBeVisible();
+      }
+    } finally {
+      await context.close();
+    }
+  });
+}
+
+test('old OS bookmarks open the matching tab', async ({ page }) => {
+  await page.goto('/install/#linux');
+  await expect(page).toHaveURL(/\/quick-start\/#linux$/);
+  await expect(page.getByRole('tab', { name: 'Linux', exact: true })).toHaveAttribute('aria-selected', 'true');
 });
 
 test('copies the chosen example and reports a clipboard fallback', async ({ context, page }) => {
@@ -214,7 +275,9 @@ test('copies the chosen example and reports a clipboard fallback', async ({ cont
   const example = page.locator('.code-block').filter({ has: page.locator('.code-heading > span', { hasText: 'profiles/focused.yaml' }) });
   await example.getByRole('button').click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('extends: everyday\nconfig:\n  model: anthropic/your-review-model\n');
-  await expect(example.getByRole('button')).toHaveText('Copied');
+  await expect(example.getByRole('button')).toHaveAttribute('data-copy-state', 'copied');
+  await expect(example.locator('.copied-glyph')).toBeVisible();
+  await expect(example.locator('.copy-glyph')).toBeHidden();
   await page.evaluate(() => Object.defineProperty(navigator.clipboard, 'writeText', { value: () => Promise.reject(new Error('Unavailable')) }));
   const first = page.locator('.code-block').first();
   await first.getByRole('button').click();
@@ -278,18 +341,16 @@ test('button springs respond to pointers and respect reduced motion and keyboard
   await page.mouse.up();
 });
 
-test('touch buttons do not retain hover spring animations', async ({ browser }) => {
+test('shared navbar works on touch screens', async ({ browser }) => {
   const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 }, reducedMotion: 'no-preference' });
   try {
     const page = await context.newPage();
      await page.goto('http://127.0.0.1:5175/docs/');
-    const menu = page.getByRole('button', { name: 'Menu' });
-    await menu.tap();
-    await expect(menu).toHaveAttribute('aria-expanded', 'true');
-    await expect(menu).toHaveCSS('animation-name', 'none');
-    await expect(menu).toHaveCSS('transform', 'none');
-    await menu.tap();
-    await expect(menu).toHaveAttribute('aria-expanded', 'false');
+    const install = page.locator('.landing-nav').getByRole('link', { name: 'Install', exact: true });
+    await install.tap();
+    await expect(page).toHaveURL(/\/quick-start\/#install$/);
+    await expect(install).toHaveCSS('animation-name', 'none');
+    await expect(install).toHaveCSS('transform', 'none');
   } finally {
     await context.close();
   }
@@ -298,34 +359,28 @@ test('touch buttons do not retain hover spring animations', async ({ browser }) 
 test('navigation, OS instructions, and examples work without JavaScript', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
-  await page.goto('http://127.0.0.1:5175/install/');
+  await page.goto('http://127.0.0.1:5175/quick-start/');
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
   await expect(page.locator('#macos')).toBeVisible();
   await expect(page.locator('#linux')).toBeVisible();
-   await page.locator('.sidebar').getByRole('link', { name: 'Quick start', exact: true }).click();
-  await expect(page.locator('.code-block')).toHaveCount(8);
+  await expect(page.locator('.install-tablist')).toBeHidden();
+  await expect(page.locator('.code-block')).toHaveCount(12);
   await expect(page.locator('.copy-button').first()).toBeHidden();
   await expect(page.locator('.prose')).toContainText('profiles/focused.yaml');
   await context.close();
 });
 
-test('mobile menu supports Escape and cross-page navigation', async ({ page }) => {
+test('shared navbar supports keyboard and cross-page navigation on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-   await page.goto('/install/');
-   const toggle = page.getByRole('button', { name: 'Menu' });
+  await page.goto('/quick-start/');
   const navigation = page.getByRole('navigation', { name: 'Main navigation' });
-  await expect(navigation).toBeHidden();
-  await toggle.click();
-  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-  await page.keyboard.press('Escape');
-  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
-  await expect(toggle).toBeFocused();
-  await toggle.click();
-  await navigation.getByRole('link', { name: 'Documentation', exact: true }).click();
+  await expect(navigation).toBeVisible();
+  await navigation.getByRole('link', { name: 'Docs', exact: true }).focus();
+  await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/docs\/$/);
   await expect(page.locator('h1')).toHaveText('Using OCP');
-  await expect(navigation).toBeHidden();
-  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(navigation).toBeVisible();
+  await expect(navigation.getByRole('link', { name: 'Docs', exact: true })).toHaveAttribute('aria-current', 'page');
 });
 
 test('homepage topic links keep their new sections and legacy command redirect', async ({ page }) => {
@@ -368,7 +423,7 @@ for (const width of [390, 1440]) {
       await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
       await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(16, 25, 35)');
       await expect(page.locator('h1')).toHaveCSS('color', 'rgb(182, 213, 255)');
-       await expect(page.locator(route === '/' ? '.landing-nav' : width === 390 ? '.mobile-header' : '.sidebar')).toHaveCSS('background-color', 'rgb(16, 45, 81)');
+       await expect(page.locator('.landing-nav')).toHaveCSS('background-color', 'rgb(16, 45, 81)');
       await page.emulateMedia({ colorScheme: 'light' });
       await expect(page.locator('html')).toHaveCSS('color-scheme', 'light');
       await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(252, 252, 250)');
