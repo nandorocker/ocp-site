@@ -85,8 +85,8 @@ test('landing page follows the copy deck and promotes installation', async ({ pa
   await expect(page.locator('.hero').getByRole('link', { name: 'Read the docs' })).toHaveAttribute('href', '/docs/');
   await expect(page.locator('.button-primary [aria-hidden="true"]')).toHaveText(['→', '→']);
   await expect(page.locator('.button-secondary')).toHaveText(['Read the docs']);
-  await expect(page.locator('main pre')).toHaveCount(5);
-  await expect(page.locator('main .copy-button')).toHaveCount(5);
+  await expect(page.locator('main pre')).toHaveCount(4);
+  await expect(page.locator('main .copy-button')).toHaveCount(4);
   await expect(page.locator('.comparison-panel')).toHaveCount(2);
   await expect(page.locator('.before .config-machine')).toHaveCount(2);
   await expect(page.locator('.before .drift-label')).toHaveText(['Different', 'Different', 'Missing', 'Missing']);
@@ -121,8 +121,9 @@ test('landing page follows the copy deck and promotes installation', async ({ pa
   })));
   expect(fileNames).toEqual(Array(4).fill(['reviewer.md', 'writing/SKILL.md', 'debugging/SKILL.md', 'bridge.ts', 'opencode.json']));
   await expect(page.locator('.directives article')).toHaveCount(3);
-  await expect(page.locator('.profile-comparison')).toContainText('Implementer');
-  await expect(page.locator('.profile-comparison')).toContainText('Reviewer');
+  await expect(page.locator('.profile-uses li')).toHaveCount(4);
+  await expect(page.locator('.profile-uses')).toContainText('Work and personal.');
+  await expect(page.locator('.profile-uses')).toContainText('Experiments.');
   await expect(page.locator('.machine-diagram, .profile-diagram, .machines-section')).toHaveCount(0);
   await expect(page.locator('#machines')).toHaveClass('machine-note');
   await expect(page.locator('.backup-warning')).toContainText('Back up first.');
