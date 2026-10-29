@@ -72,7 +72,9 @@ test('landing page follows the copy deck and promotes installation', async ({ pa
   await expect(page).toHaveTitle('OCP: Take your coding agent setup anywhere you work');
   await expect(page.locator('h1')).toHaveText('Take your coding agent setup anywhere you work.');
   await expect(page.locator('.hero-support')).toHaveText('Currently supports OpenCode. More harnesses coming soon!');
-  await expect(page.locator('.hero-support')).toHaveCSS('text-decoration-color', 'rgb(254, 178, 26)');
+  await expect(page.locator('.hero-coming')).toHaveText('coming soon');
+  await expect(page.locator('.hero-coming')).toHaveCSS('text-decoration-color', 'rgb(254, 178, 26)');
+  await expect(page.locator('.hero-coming')).toHaveCSS('text-decoration-thickness', '2px');
   await expect(page.locator('.trust-line, .hero-visual figcaption')).toHaveCount(0);
   await expect(page.locator('#copy-status')).toBeEmpty();
   await expect(page.locator('#copy-toast')).toBeHidden();

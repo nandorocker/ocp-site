@@ -133,7 +133,7 @@ pre { margin: 0; padding: 16px; overflow-x: auto; font-size: .8rem; line-height:
 .home .hero-description { font-size: .95rem; }
 .hero-visual { margin: 0; min-width: 0; }
 .home .hero-illustration { width: 100%; max-width: none; }
-.hero-support { text-decoration: underline; text-decoration-color: var(--amber); text-decoration-thickness: 3px; text-underline-offset: 4px; }
+.hero-coming { text-decoration: underline; text-decoration-color: var(--amber); text-decoration-thickness: 2px; text-underline-offset: 4px; }
 .hero .code-block { margin: 24px 0 0; }
 .button-secondary { border: 1px solid var(--blue); color: var(--blue); background: transparent; }
 .button-secondary:hover { background: var(--code); }
